@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QStandardPaths>
 #include <QDir>
+#include <QSettings>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
@@ -41,6 +42,18 @@ int main(int argc, char *argv[])
     NVMRDisplay w;
     w.setWindowState( Qt::WindowFullScreen );
     w.show();
+
+    QSettings set;
+    set.beginGroup( "video" );
+    set.setValue( "default", QVariant(1) );
+    set.beginWriteArray( "videos" );
+    for( int x = 0; x < 2; x++ ){
+        set.setArrayIndex( x );
+        set.setValue( "name", QVariant( x+ 10 ) );
+        set.setValue( "url", QVariant( "https://jklhasdjf" ) );
+    }
+    set.endArray();
+    set.endGroup();
 
     return a.exec();
 }

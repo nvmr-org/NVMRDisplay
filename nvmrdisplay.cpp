@@ -1,5 +1,7 @@
 #include "nvmrdisplay.h"
 #include "ui_nvmrdisplay.h"
+#include "rpisourcebin.h"
+#include "displaybin.h"
 
 #include <QKeyEvent>
 #include <QOpenGLContext>
@@ -195,6 +197,37 @@ my_bus_callback (GstBus * bus, GstMessage * message, gpointer data)
   return TRUE;
 }
 
+#if 1
+void NVMRDisplay::playVideo(QQuickWidget *widget){
+    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
+    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+
+    RPISourceBin* srcBin = new RPISourceBin();
+    srcBin->setPort( 5248 );
+    DisplayBin* dispBin = new DisplayBin();
+
+    dispBin->linkToQQuickWidget( widget );
+
+    GstElement *pipeline = gst_pipeline_new ("foopipeline");
+    GstElement* source = srcBin->getBin();
+//    GstElement* source = gst_element_factory_make( "videotestsrc", "src" );
+    GstElement* sink = dispBin->bin();
+
+    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
+    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
+    gst_object_unref (bus);
+
+    gst_bin_add_many (GST_BIN (pipeline), source, sink, nullptr);
+    LOG4CXX_ERROR( logger, "ABOUT TO LINK" );
+    if( !gst_element_link( source, sink ) ){
+        LOG4CXX_ERROR( logger, "src to sink link" );
+    }
+
+    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
+          QQuickWindow::BeforeSynchronizingStage);
+}
+
+#else
 void NVMRDisplay::playVideo(QQuickWidget *widget){
     widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
     widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -229,3 +262,4 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
     widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
           QQuickWindow::BeforeSynchronizingStage);
 }
+#endif

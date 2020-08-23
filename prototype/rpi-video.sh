@@ -5,5 +5,5 @@ gst-launch-1.0 udpsrc port=5248 \
   ! rtph264depay \
   ! h264parse \
   ! avdec_h264 \
-  ! autovideosink
+  ! autovideosink sync=false
 

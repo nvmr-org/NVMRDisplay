@@ -33,14 +33,18 @@ SOURCES += \
     videowidget.cpp \
     h264bin.cpp \
     rpisourcebin.cpp \
-    videopipeline.cpp
+    videopipeline.cpp \
+    videosource.cpp \
+    displaybin.cpp
 
 HEADERS += \
         nvmrdisplay.h \
     videowidget.h \
     h264bin.h \
     rpisourcebin.h \
-    videopipeline.h
+    videopipeline.h \
+    videosource.h \
+    displaybin.h
 
 FORMS += \
         nvmrdisplay.ui
