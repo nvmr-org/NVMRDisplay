@@ -2,6 +2,9 @@
 #define NVMRDISPLAY_H
 
 #include <QMainWindow>
+#include <QQuickWidget>
+#include <QVector>
+#include <QGridLayout>
 #include <ostream>
 
 namespace Ui {
@@ -27,8 +30,8 @@ public:
 
     void keyPressEvent( QKeyEvent* event ) override;
 
-private slots:
-    void doOpenglStuff();
+private:
+    void playVideo( QQuickWidget* widget );
 
 private:
     bool isKeySpecial( QKeyEvent* event ) const;
@@ -37,6 +40,8 @@ private:
     Ui::NVMRDisplay *ui;
     int m_numberEntered;
     CurrentCommand m_currentCommand;
+    QVector<QQuickWidget*> m_videos;
+    QGridLayout m_mainLayout;
 };
 
 inline std::ostream& operator<<( std::ostream& stream, CurrentCommand cmd ){

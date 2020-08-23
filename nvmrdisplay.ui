@@ -13,30 +13,9 @@
   <property name="windowTitle">
    <string>NVMRDisplay</string>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <widget class="QQuickWidget" name="quickWidget">
-    <property name="geometry">
-     <rect>
-      <x>80</x>
-      <y>40</y>
-      <width>300</width>
-      <height>200</height>
-     </rect>
-    </property>
-    <property name="resizeMode">
-     <enum>QQuickWidget::SizeRootObjectToView</enum>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>QQuickWidget</class>
-   <extends>QWidget</extends>
-   <header>QtQuickWidgets/QQuickWidget</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -8,6 +8,8 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QRunnable>
+#include <QLayout>
+#include <QPushButton>
 
 #include <log4cxx/logger.h>
 #include <gst/gst.h>
@@ -18,42 +20,37 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdis
 class SetPlaying : public QRunnable
 {
 public:
-  SetPlaying(GstElement *);
-  ~SetPlaying();
+    SetPlaying(GstElement * pipeline){
+        this->pipeline_ = pipeline ? static_cast<GstElement *> (gst_object_ref (pipeline)) : NULL;
+    }
 
-  void run ();
+    ~SetPlaying(){
+        if (this->pipeline_)
+          gst_object_unref (this->pipeline_);
+    }
+
+    void run (){
+        LOG4CXX_DEBUG( logger, "DO THE RUN" );
+        if (this->pipeline_)
+          gst_element_set_state (this->pipeline_, GST_STATE_PLAYING);
+    }
 
 private:
   GstElement * pipeline_;
 };
 
-SetPlaying::SetPlaying (GstElement * pipeline)
-{
-  this->pipeline_ = pipeline ? static_cast<GstElement *> (gst_object_ref (pipeline)) : NULL;
-}
-
-SetPlaying::~SetPlaying ()
-{
-  if (this->pipeline_)
-    gst_object_unref (this->pipeline_);
-}
-
-void
-SetPlaying::run ()
-{
-  if (this->pipeline_)
-    gst_element_set_state (this->pipeline_, GST_STATE_PLAYING);
-}
-
 NVMRDisplay::NVMRDisplay(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::NVMRDisplay),
     m_numberEntered( 0 ),
-    m_currentCommand( CurrentCommand::NoCommand )
+    m_currentCommand( CurrentCommand::NoCommand ),
+    m_mainLayout( nullptr )
 {
     ui->setupUi(this);
 
-    QTimer::singleShot( 1000, this, &NVMRDisplay::doOpenglStuff );
+
+    ui->centralWidget->setLayout( &m_mainLayout );
+    //playVideo( ui->quickWidget );
 }
 
 NVMRDisplay::~NVMRDisplay()
@@ -87,6 +84,68 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
 
     if( event->key() == Qt::Key_Enter ){
         LOG4CXX_DEBUG( logger, "Do command " << m_currentCommand << " with number entered " << m_numberEntered );
+
+        switch( m_currentCommand ){
+        case CurrentCommand::ViewCamera:
+        {
+            // Show only the one camera
+            for( QQuickWidget* wid: m_videos ){
+                m_mainLayout.removeWidget( wid );
+                wid->deleteLater();
+            }
+            m_videos.clear();
+
+            QQuickWidget* displayWidget = new QQuickWidget();
+            m_mainLayout.addWidget( displayWidget );
+            m_videos.push_back( displayWidget );
+            playVideo( displayWidget );
+            break;
+        }
+        case CurrentCommand::AddCamera:
+        {
+            // Remove the first video
+            if( m_videos.size() > 3 ){
+                m_videos[ 0 ]->deleteLater();
+                m_mainLayout.removeWidget( m_videos[ 0 ] );
+                m_videos.pop_front();
+            }
+
+            // Remove all of the videos from the layout so we add them back in order.
+//            for( QQuickWidget* wid: m_videos ){
+//                //wid->setParent( this );
+//                LOG4CXX_DEBUG( logger, "removing height: "
+//                               << wid->size().height()
+//                               << " width: "
+//                               << wid->size().width() );
+//                m_mainLayout.removeWidget( wid );
+
+//            }
+
+            QGridLayout* newLayout = new QGridLayout();
+            QQuickWidget* displayWidget = new QQuickWidget();
+            m_videos.push_back( displayWidget );
+            m_mainLayout.addWidget( displayWidget );
+
+//            int row = 0;
+//            int col = 0;
+//            for( QQuickWidget* wid : m_videos ){
+//                m_mainLayout.removeWidget( wid );
+////                m_mainLayout.addWidget( wid );
+//                LOG4CXX_DEBUG( logger, "add at " << row << ":" << col );
+//                newLayout->addWidget( wid, row, col );
+//                col++;
+//                if( col > 1 ){
+//                    col = 0;
+//                    row++;
+//                }
+//            }
+
+            playVideo( displayWidget );
+
+            break;
+        }
+        }
+
         m_currentCommand = CurrentCommand::NoCommand;
         m_numberEntered = 0;
     }
@@ -107,9 +166,6 @@ bool NVMRDisplay::isKeySpecial( QKeyEvent* evt ) const {
 static gboolean
 my_bus_callback (GstBus * bus, GstMessage * message, gpointer data)
 {
-  //g_print ("Got %s message\n", GST_MESSAGE_TYPE_NAME (message));
-//  LOG4CXX_DEBUG( logger, "bus message: " << GST_MESSAGE_TYPE_NAME (message) );
-
   switch (GST_MESSAGE_TYPE (message)) {
     case GST_MESSAGE_ERROR:{
       GError *err;
@@ -139,55 +195,37 @@ my_bus_callback (GstBus * bus, GstMessage * message, gpointer data)
   return TRUE;
 }
 
-void NVMRDisplay::doOpenglStuff(){
-
-    ui->quickWidget->setSource(QUrl("qrc:/quickwidget/video.qml"));
+void NVMRDisplay::playVideo(QQuickWidget *widget){
+    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
+    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
     GstElement *pipeline = gst_pipeline_new ("foopipeline");
-      GstElement *src = gst_element_factory_make ("videotestsrc", NULL);
-      GstElement* convert = gst_element_factory_make( "autovideoconvert", NULL );
+    GstElement *src = gst_element_factory_make ("videotestsrc", NULL);
+    GstElement* convert = gst_element_factory_make( "autovideoconvert", NULL );
 
-      GstElement* sinkQml = gst_element_factory_make ("qmlglsink", nullptr);
-      GstElement* sinkBin = gst_element_factory_make("glsinkbin", nullptr);
+    GstElement* sinkQml = gst_element_factory_make ("qmlglsink", nullptr);
+    GstElement* sinkBin = gst_element_factory_make("glsinkbin", nullptr);
 
-      g_object_set (sinkBin, "sink", sinkQml, nullptr);
+    g_object_set (sinkBin, "sink", sinkQml, nullptr);
 
-      gst_bin_add_many (GST_BIN (pipeline), src, convert, sinkBin, nullptr);
-      gst_element_link_many (src, convert, sinkBin, nullptr);
+    gst_bin_add_many (GST_BIN (pipeline), src, convert, sinkBin, nullptr);
+    gst_element_link_many (src, convert, sinkBin, nullptr);
 
-      GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-      guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
-        gst_object_unref (bus);
+    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
+    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
+    gst_object_unref (bus);
 
-      if( pipeline == nullptr || src == nullptr || sinkQml == nullptr ){
-          LOG4CXX_ERROR( logger, "something null" );
-      }
+    if( pipeline == nullptr || src == nullptr || sinkQml == nullptr ){
+        LOG4CXX_ERROR( logger, "something null" );
+        return;
+    }
 
+    QQuickItem* quickRoot = widget->rootObject();
+    g_object_set( sinkQml,
+                  "widget", quickRoot->findChild<QQuickItem*>( "videoItem" ),
+                  nullptr );
 
-
-      QQuickItem* quickRoot = ui->quickWidget->rootObject();
-      g_object_set( sinkQml,
-                    "widget", quickRoot->findChild<QQuickItem*>( "videoItem" ),
-                    nullptr );
-      for( QObject* obj : quickRoot->children() ){
-          LOG4CXX_DEBUG( logger, "object name is: " << obj->objectName().toStdString() );
-      }
-
-//      gst_bin_add_many (GST_BIN (pipeline), src, convert, sink, NULL);
-//      gst_element_link_many (src, convert, sink);
-
-
-     ui->quickWidget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
+    LOG4CXX_DEBUG( logger, "schedule the render job.  ptr is " << quickRoot->findChild<QQuickItem*>( "videoItem" ) );
+    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
           QQuickWindow::BeforeSynchronizingStage);
-
-
-//      GstStateChangeReturn sret = gst_element_set_state (pipeline,
-//          GST_STATE_PLAYING);
-//      if (sret == GST_STATE_CHANGE_FAILURE) {
-//        gst_element_set_state (pipeline, GST_STATE_NULL);
-//        gst_object_unref (pipeline);
-//        LOG4CXX_ERROR( logger, "Unable to play pipeline" );
-//        // Exit application
-//        //QTimer::singleShot(0, QApplication::activeWindow(), SLOT(quit()));
-//      }
 }
