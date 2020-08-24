@@ -22,30 +22,6 @@ SoospySourceBin::SoospySourceBin(QObject *parent) : VideoSource(parent)
 
     g_signal_connect( asfdemux, "pad-added", G_CALLBACK(&SoospySourceBin::pad_added_handler_cb), this );
 
-    if( 0 ){
-        // TEST CODE
-        GstElement* fakesink = gst_element_factory_make( "fakesink", "hihi" );
-        gst_bin_add_many( bin, soupSrc, asfdemux, fakesink, nullptr );
-        if( !gst_element_link( soupSrc, asfdemux ) ){
-            LOG4CXX_ERROR( logger, "soupsrc->asfdemux" );
-        }
-//        if( !gst_element_link( asfdemux, fakesink ) ){
-//            LOG4CXX_ERROR( logger, "asfdemux->fakexink" );
-//        }
-        //gst_element_link_many( soupSrc, asfdemux, fakesink, nullptr );
-
-        GstElement* fakesrc = gst_element_factory_make( "videotestsrc", nullptr );
-        gst_bin_add( bin, fakesrc );
-        GstPad* source_pad = gst_element_get_static_pad (fakesrc, "src");
-        GstPad* source_ghost_pad = gst_ghost_pad_new ("src", source_pad);
-        gst_pad_set_active (source_ghost_pad, TRUE);
-        gst_element_add_pad (m_bin, source_ghost_pad);
-
-        LOG4CXX_DEBUG( logger, "DEBUGGINT O DOT" );
-        GST_DEBUG_BIN_TO_DOT_FILE( bin, GST_DEBUG_GRAPH_SHOW_ALL, "foo" );
-        return;
-    }
-
     gst_bin_add_many(bin, soupSrc, asfdemux, parse, avdec, nullptr );
 
     // Note: can't link asfdemux to parse, as pad doesn't always exist.
