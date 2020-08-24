@@ -15,9 +15,8 @@ public:
     ~RPISourceBin();
 
     virtual void writeToQSettings( QSettings* settings );
-
+    virtual void readFromQSettings( QSettings* settings );
     virtual SourceType sourceType() const;
-
     virtual GstElement* getBin();
 
     int port() const;

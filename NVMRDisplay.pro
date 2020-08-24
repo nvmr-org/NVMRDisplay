@@ -35,7 +35,8 @@ SOURCES += \
     rpisourcebin.cpp \
     videopipeline.cpp \
     videosource.cpp \
-    displaybin.cpp
+    displaybin.cpp \
+    soospysourcebin.cpp
 
 HEADERS += \
         nvmrdisplay.h \
@@ -44,7 +45,8 @@ HEADERS += \
     rpisourcebin.h \
     videopipeline.h \
     videosource.h \
-    displaybin.h
+    displaybin.h \
+    soospysourcebin.h
 
 FORMS += \
         nvmrdisplay.ui

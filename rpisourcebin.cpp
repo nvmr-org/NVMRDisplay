@@ -42,8 +42,16 @@ RPISourceBin::~RPISourceBin(){
 }
 
 void RPISourceBin::writeToQSettings( QSettings* settings ){
-    writeSourceType( settings, SourceType::RPi );
+    writeCommon( settings, SourceType::RPi );
     settings->setValue( "port", m_port );
+}
+
+void RPISourceBin::readFromQSettings( QSettings* settings ){
+    readVideoId( settings );
+
+    int port = settings->value( "port" ).toInt();
+
+    setPort( port );
 }
 
 SourceType RPISourceBin::sourceType() const {

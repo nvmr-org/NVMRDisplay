@@ -7,6 +7,8 @@
 #include <QGridLayout>
 #include <ostream>
 
+#include "videosource.h"
+
 namespace Ui {
 class NVMRDisplay;
 }
@@ -42,6 +44,7 @@ private:
     CurrentCommand m_currentCommand;
     QVector<QQuickWidget*> m_videos;
     QGridLayout m_mainLayout;
+    QMap<int,VideoSource*> m_videoSources;
 };
 
 inline std::ostream& operator<<( std::ostream& stream, CurrentCommand cmd ){

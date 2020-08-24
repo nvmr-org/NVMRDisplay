@@ -9,6 +9,8 @@
 
 #include <gst/gst.h>
 
+#include "soospysourcebin.h"
+
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdisplaymain" );
 
 static void initialize_logging(){
@@ -42,18 +44,6 @@ int main(int argc, char *argv[])
     NVMRDisplay w;
     w.setWindowState( Qt::WindowFullScreen );
     w.show();
-
-    QSettings set;
-    set.beginGroup( "video" );
-    set.setValue( "default", QVariant(1) );
-    set.beginWriteArray( "videos" );
-    for( int x = 0; x < 2; x++ ){
-        set.setArrayIndex( x );
-        set.setValue( "name", QVariant( x+ 10 ) );
-        set.setValue( "url", QVariant( "https://jklhasdjf" ) );
-    }
-    set.endArray();
-    set.endGroup();
 
     return a.exec();
 }

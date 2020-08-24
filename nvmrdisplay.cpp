@@ -2,6 +2,7 @@
 #include "ui_nvmrdisplay.h"
 #include "rpisourcebin.h"
 #include "displaybin.h"
+#include "soospysourcebin.h"
 
 #include <QKeyEvent>
 #include <QOpenGLContext>
@@ -32,7 +33,7 @@ public:
     }
 
     void run (){
-        LOG4CXX_DEBUG( logger, "DO THE RUN" );
+        LOG4CXX_DEBUG( logger, "Starting pipeline" );
         if (this->pipeline_)
           gst_element_set_state (this->pipeline_, GST_STATE_PLAYING);
     }
@@ -50,9 +51,30 @@ NVMRDisplay::NVMRDisplay(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     ui->centralWidget->setLayout( &m_mainLayout );
-    //playVideo( ui->quickWidget );
+
+    // Load all of our video sources from the config file
+    QSettings settings;
+    settings.beginGroup( "video" );
+    int size = settings.beginReadArray( "videos" );
+    for( int x = 0; x < size; x++ ){
+        settings.setArrayIndex( x );
+        QString videoType = settings.value( "video-type" ).toString();
+        VideoSource* vidSrc = nullptr;
+        if( videoType == "soospy" ){
+            vidSrc = new SoospySourceBin( this );
+        }else if( videoType == "RPi" ){
+            vidSrc = new RPISourceBin( this );
+        }else{
+            continue;
+        }
+
+        vidSrc->readFromQSettings( &settings );
+        m_videoSources[ vidSrc->videoId() ] = vidSrc;
+        LOG4CXX_DEBUG( logger, "read video ID " << vidSrc->videoId() );
+    }
+    settings.endArray();
+    settings.endGroup();
 }
 
 NVMRDisplay::~NVMRDisplay()
@@ -202,8 +224,13 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
     widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
     widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    RPISourceBin* srcBin = new RPISourceBin();
-    srcBin->setPort( 5248 );
+//    RPISourceBin* srcBin = new RPISourceBin();
+//    srcBin->setPort( 5248 );
+    VideoSource* srcBin = m_videoSources[ m_numberEntered ];
+    if( srcBin == nullptr ){
+        return;
+    }
+
     DisplayBin* dispBin = new DisplayBin();
 
     dispBin->linkToQQuickWidget( widget );
@@ -218,9 +245,8 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
     gst_object_unref (bus);
 
     gst_bin_add_many (GST_BIN (pipeline), source, sink, nullptr);
-    LOG4CXX_ERROR( logger, "ABOUT TO LINK" );
     if( !gst_element_link( source, sink ) ){
-        LOG4CXX_ERROR( logger, "src to sink link" );
+        LOG4CXX_ERROR( logger, "Unable to link source to sink" );
     }
 
     widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
