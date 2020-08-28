@@ -13,6 +13,7 @@
 #include <QRunnable>
 #include <QLayout>
 #include <QPushButton>
+#include <QTabBar>
 
 #include <log4cxx/logger.h>
 #include <gst/gst.h>
@@ -49,13 +50,18 @@ NVMRDisplay::NVMRDisplay(QWidget *parent) :
     m_currentCommand( CurrentCommand::NoCommand ),
     m_mainLayout( nullptr )
 {
+    int defaultVideo = 0;
+    int defaultUrl = 0;
+
     ui->setupUi(this);
 
     ui->centralWidget->setLayout( &m_mainLayout );
+    ui->tabWidget->tabBar()->hide();
 
     // Load all of our video sources from the config file
     QSettings settings;
     settings.beginGroup( "video" );
+    defaultVideo = settings.value( "default" ).toInt();
     int size = settings.beginReadArray( "videos" );
     for( int x = 0; x < size; x++ ){
         settings.setArrayIndex( x );
@@ -75,6 +81,24 @@ NVMRDisplay::NVMRDisplay(QWidget *parent) :
     }
     settings.endArray();
     settings.endGroup();
+
+    // Load all of our URL sources from the config file
+    settings.beginGroup( "web" );
+    defaultUrl = settings.value( "default" ).toInt();
+    size = settings.beginReadArray( "urls" );
+    for( int x = 0; x < size; x++ ){
+        bool ok;
+        settings.setArrayIndex( x );
+        int urlId = settings.value( "url-id" ).toInt( &ok );
+        if( !ok ){
+            continue;
+        }
+        m_wepageSources[ urlId ] = settings.value( "url" ).toUrl();
+    }
+    settings.endArray();
+    settings.endGroup();
+
+    // TODO load the default video and the default URL
 }
 
 NVMRDisplay::~NVMRDisplay()
@@ -90,6 +114,8 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
             m_currentCommand = CurrentCommand::ViewCamera;
         }else if( event->key() == Qt::Key_Plus ){
             m_currentCommand = CurrentCommand::AddCamera;
+        }else if( event->key() == Qt::Key_Period ){
+            m_currentCommand = CurrentCommand::ViewWebpage;
         }
     }else if( m_currentCommand != CurrentCommand::NoCommand &&
               isKeySpecial( event ) ){

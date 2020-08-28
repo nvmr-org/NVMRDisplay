@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quickwidgets
+QT       += core gui quickwidgets webenginewidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

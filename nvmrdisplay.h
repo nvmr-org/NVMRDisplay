@@ -45,6 +45,7 @@ private:
     QVector<QQuickWidget*> m_videos;
     QGridLayout m_mainLayout;
     QMap<int,VideoSource*> m_videoSources;
+    QMap<int,QUrl> m_wepageSources;
 };
 
 inline std::ostream& operator<<( std::ostream& stream, CurrentCommand cmd ){

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     gst_object_unref(sink);
 
     NVMRDisplay w;
-    w.setWindowState( Qt::WindowFullScreen );
+//    w.setWindowState( Qt::WindowFullScreen );
     w.show();
 
     return a.exec();
