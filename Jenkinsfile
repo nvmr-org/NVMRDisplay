@@ -16,7 +16,7 @@ node {
 			components: '', 
 			distribution: 'buster', 
 			keyring: '', 
-			mirrorSite: 'http://raspbian.rapsberrypi.org/raspbian', 
+			mirrorSite: 'http://deb.debian.org/debian/', 
 			pristineTarName: ''
 	} //stage
 
