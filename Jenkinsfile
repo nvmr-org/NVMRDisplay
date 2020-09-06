@@ -22,7 +22,7 @@ node {
 
 	stage("Add to repo if master"){
 		if( env.BRANCH_NAME == "master" ){
-			//aptlyPublish includeSource: true, removeOldPackages: true, repositoryName: "nightly-nvmr"
+			aptlyPublish includeSource: true, removeOldPackages: true, repositoryName: "nightly-nvmr"
 		}
 	}
 }
