@@ -10,18 +10,11 @@ node {
 			}
 	}
 	stage("Build"){
-		if( repoHook.length() > 0 ){
-			configFileProvider([configFile(fileId: "${repoHook}", targetLocation: 'hookdir/D21-repo-hook')]){
-				//buildDebPkg_fn( arch, distro )
-			}
-		}else{
-		//	buildDebPkg_fn( arch, distro )
-		}
 
 		debianPbuilder additionalBuildResults: '', 
-			architecture: armhf, 
+			architecture: 'armhf', 
 			components: '', 
-			distribution: buster, 
+			distribution: 'buster', 
 			keyring: '', 
 			mirrorSite: 'http://raspbian.rapsberrypi.org/raspbian', 
 			pristineTarName: ''
