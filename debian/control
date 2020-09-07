@@ -13,7 +13,7 @@ Homepage: <insert the upstream URL, if relevant>
 
 Package: nvmr-display
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}, qml-module-qtgstreamer, qml-module-qtquick2
 Description: Display for NVMR
  Display program for NVMR to display cameras and webpages
  from JMRI
