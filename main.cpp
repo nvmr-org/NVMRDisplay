@@ -3,13 +3,14 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QSettings>
+#include <QTimer>
 
 #include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
 
 #include <gst/gst.h>
 
-#include "soospysourcebin.h"
+#include "avahibrowse.h"
 
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdisplaymain" );
 
@@ -49,6 +50,9 @@ int main(int argc, char *argv[])
         }
     }
     w.show();
+
+    AvahiBrowse br;
+    QTimer::singleShot( 0, &br, &AvahiBrowse::initialize );
 
     return a.exec();
 }

@@ -28,9 +28,6 @@ public:
     QString userPassword() const;
     void setUserPassword( QString str );
 
-signals:
-
-public slots:
 private:
     static void pad_added_handler_cb (GstElement *src, GstPad *pad, void *data);
     void pad_added_handler( GstElement* src, GstPad* pad );

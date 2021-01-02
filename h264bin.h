@@ -12,9 +12,6 @@ public:
     explicit H264Bin(QObject *parent = nullptr);
     ~H264Bin();
 
-signals:
-
-public slots:
 private:
     GstElement* m_bin;
 };

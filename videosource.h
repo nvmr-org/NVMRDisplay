@@ -25,9 +25,6 @@ public:
     void setVideoId( int id );
     int videoId();
 
-signals:
-
-public slots:
 protected:
     void writeCommon( QSettings* settings, SourceType type );
     void readVideoId( QSettings* settings );

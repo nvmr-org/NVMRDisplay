@@ -23,9 +23,6 @@ public:
 
     void setPort( int port );
 
-signals:
-
-public slots:
 private:
     GstElement* m_bin;
     int m_port;

@@ -34,9 +34,8 @@ public:
 
 private:
     void playVideo( QQuickWidget* widget );
-
-private:
     bool isKeySpecial( QKeyEvent* event ) const;
+    bool functionKeyHandled( QKeyEvent* event );
 
 private:
     Ui::NVMRDisplay *ui;

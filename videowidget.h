@@ -9,9 +9,6 @@ class VideoWidget : public QWidget
 public:
     explicit VideoWidget(QWidget *parent = nullptr);
 
-signals:
-
-public slots:
 };
 
 #endif // VIDEOWIDGET_H

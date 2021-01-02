@@ -62,12 +62,25 @@
         </property>
        </layout>
       </widget>
+      <widget class="SenderConfigurator" name="configuratorWidget">
+       <attribute name="title">
+        <string>Page</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>SenderConfigurator</class>
+   <extends>QWidget</extends>
+   <header>senderconfigurator.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

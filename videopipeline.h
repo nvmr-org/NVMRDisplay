@@ -12,9 +12,7 @@ public:
     explicit VideoPipeline(QObject *parent = nullptr);
     ~VideoPipeline();
 
-signals:
-
-public slots:
+public Q_SLOTS:
     void play();
     void stop();
 

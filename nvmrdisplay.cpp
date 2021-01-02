@@ -107,6 +107,10 @@ NVMRDisplay::~NVMRDisplay()
 }
 
 void NVMRDisplay::keyPressEvent(QKeyEvent *event){
+    if( functionKeyHandled( event ) ){
+        return;
+    }
+
     if( m_currentCommand == CurrentCommand::NoCommand &&
             isKeySpecial( event ) ){
         LOG4CXX_TRACE( logger, "Got special key" );
@@ -243,6 +247,21 @@ my_bus_callback (GstBus * bus, GstMessage * message, gpointer data)
    * for messages on the bus and our callback should not be called again)
    */
   return TRUE;
+}
+
+bool NVMRDisplay::functionKeyHandled( QKeyEvent* event ){
+    if( event->key() == Qt::Key_F1 ){
+        ui->tabWidget->setCurrentIndex( 0 );
+        return true;
+    }else if( event->key() == Qt::Key_F2 ){
+        ui->tabWidget->setCurrentIndex( 1 );
+        return true;
+    }else if( event->key() == Qt::Key_F3 ){
+        ui->tabWidget->setCurrentIndex( 2 );
+        return true;
+    }
+
+    return false;
 }
 
 #if 1

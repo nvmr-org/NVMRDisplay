@@ -16,9 +16,6 @@ public:
 
     void linkToQQuickWidget( QQuickWidget* widget );
 
-signals:
-
-public slots:
 private:
     GstElement* m_bin;
     GstElement* m_qml;
