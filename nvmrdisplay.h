@@ -13,6 +13,8 @@ namespace Ui {
 class NVMRDisplay;
 }
 
+class AvahiBrowse;
+
 enum class CurrentCommand{
     NoCommand,
     ViewCamera,
@@ -31,6 +33,8 @@ public:
     void clearVideos();
 
     void keyPressEvent( QKeyEvent* event ) override;
+
+    void setAvahiBrowser( AvahiBrowse* avahi );
 
 private:
     void playVideo( QQuickWidget* widget );

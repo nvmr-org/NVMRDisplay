@@ -42,7 +42,11 @@ int main(int argc, char *argv[])
     GstElement *sink = gst_element_factory_make ("qmlglsink", NULL);
     gst_object_unref(sink);
 
+    AvahiBrowse br;
+    QTimer::singleShot( 0, &br, &AvahiBrowse::initialize );
+
     NVMRDisplay w;
+    w.setAvahiBrowser( &br );
     {
         QSettings settings;
         if( settings.value( "fullscreen", "true" ).toBool() ){
@@ -50,9 +54,6 @@ int main(int argc, char *argv[])
         }
     }
     w.show();
-
-    AvahiBrowse br;
-    QTimer::singleShot( 0, &br, &AvahiBrowse::initialize );
 
     return a.exec();
 }

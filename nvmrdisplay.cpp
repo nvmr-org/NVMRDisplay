@@ -334,3 +334,7 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
           QQuickWindow::BeforeSynchronizingStage);
 }
 #endif
+
+void NVMRDisplay::setAvahiBrowser(AvahiBrowse *avahi){
+    ui->configuratorWidget->setAvahiBrowser( avahi );
+}

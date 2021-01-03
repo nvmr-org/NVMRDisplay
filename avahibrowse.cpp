@@ -110,8 +110,46 @@ void AvahiBrowse::resolvedFound(int32_t interface,
                    << address
                    << " port: "
                    << port );
+
+    VideoSender newVideoSender;
+    newVideoSender.name = QString::fromStdString( name );
+    newVideoSender.port = port;
+    newVideoSender.address = QString::fromStdString( address );
+
+    // We are assuming that the 'name' of the video sender is unique.
+    QVector<VideoSender>::iterator it =
+            std::find_if( m_resolvedVideoSenders.begin(),
+                          m_resolvedVideoSenders.end(),
+                       [newVideoSender]( const VideoSender& fromArray ){
+        return newVideoSender.name == fromArray.name;
+    } );
+
+    if( it != m_resolvedVideoSenders.end() ){
+        m_resolvedVideoSenders.erase( it );
+    }
+    m_resolvedVideoSenders.push_back( newVideoSender );
+    Q_EMIT videoSendersUpdated();
 }
 
 void AvahiBrowse::resolvedError(std::string err){
     LOG4CXX_ERROR( logger, "Resolver had error: " << err );
+}
+
+QVector<VideoSender> AvahiBrowse::getVideoSenders(){
+    return m_resolvedVideoSenders;
+}
+
+VideoSender AvahiBrowse::getVideoSenderByID(QString id){
+    QVector<VideoSender>::iterator it =
+            std::find_if( m_resolvedVideoSenders.begin(),
+                          m_resolvedVideoSenders.end(),
+                       [id]( const VideoSender& fromArray ){
+        return id == fromArray.name;
+    } );
+
+    if( it == m_resolvedVideoSenders.end() ){
+        return VideoSender();
+    }
+
+    return *it;
 }

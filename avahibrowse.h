@@ -3,11 +3,18 @@
 
 #include <QObject>
 #include <QMap>
+#include <QVector>
 #include <dbus-cxx-qt.h>
 
 #include "avahi-dbus/ServerProxy.h"
 #include "avahi-dbus/ServiceBrowserProxy.h"
 #include "avahi-dbus/ServiceResolverProxy.h"
+
+struct VideoSender {
+    QString name;
+    QString address;
+    int port;
+};
 
 class AvahiBrowse : public QObject
 {
@@ -15,7 +22,11 @@ class AvahiBrowse : public QObject
 public:
     explicit AvahiBrowse(QObject *parent = nullptr);
 
+    QVector<VideoSender> getVideoSenders();
+    VideoSender getVideoSenderByID( QString id );
+
 Q_SIGNALS:
+    void videoSendersUpdated();
 
 public Q_SLOTS:
     void initialize();
@@ -46,6 +57,7 @@ private:
     std::shared_ptr<Avahi::ServerProxy> m_avahiServer;
     std::shared_ptr<Avahi::ServiceBrowserProxy> m_browserProxy;
     QMap<QString,std::shared_ptr<Avahi::ServiceResolverProxy>> m_nameToResolver;
+    QVector<VideoSender> m_resolvedVideoSenders;
 };
 
 #endif // AVAHIBROWSE_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui quickwidgets
+QT       += core gui quickwidgets websockets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,7 +26,7 @@ CONFIG += no_keywords
 QMAKE_CXXFLAGS += -std=c++17
 
 unix: CONFIG += link_pkgconfig
-unix: PKGCONFIG += gstreamer-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 liblog4cxx dbus-cxx-qt-2.0
+unix: PKGCONFIG += gstreamer-1.0 gstreamer-plugins-base-1.0 gstreamer-video-1.0 liblog4cxx dbus-cxx-qt-2.0 nvmr-json
 
 SOURCES += \
         main.cpp \
