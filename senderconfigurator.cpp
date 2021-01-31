@@ -79,6 +79,17 @@ void SenderConfigurator::binaryMessageRx( const QByteArray& msg ){
         std::string debugDoc = doc.toJson().toStdString();
         LOG4CXX_DEBUG( logger, "Got document: " << debugDoc );
     }
+
+    VideoSenderMessage videoSenderMsg( doc.object() );
+    ui->uuidLabel->setText( videoSenderMsg.configuration().uuid() );
+    ui->videoName->setText( videoSenderMsg.configuration().videoSettings().name() );
+    ui->heightSpin->setValue( videoSenderMsg.configuration().videoSettings().height() );
+    ui->widthSpin->setValue( videoSenderMsg.configuration().videoSettings().width() );
+    ui->ptSpin->setValue( videoSenderMsg.configuration().videoSettings().pt() );
+    ui->configInterval->setValue( videoSenderMsg.configuration().videoSettings().configInterval() );
+
+    ui->ipAddr->setText( videoSenderMsg.configuration().networkSettings().udpHost() );
+    ui->ipPort->setValue( videoSenderMsg.configuration().networkSettings().udpPort() );
 }
 
 void SenderConfigurator::queryData(){
@@ -92,4 +103,36 @@ void SenderConfigurator::queryData(){
 
 void SenderConfigurator::websocketError(QAbstractSocket::SocketError err ){
     LOG4CXX_ERROR( logger, "websocket error: " << err );
+}
+
+void SenderConfigurator::on_saveButton_clicked()
+{
+    VideoSenderMessage saveMessage;
+
+    saveMessage.setCommand( "set" );
+    saveMessage.mutuable_configuration().mutable_videoSettings()
+            .setId( ui->idSpin->value() )
+            .setPt( ui->ptSpin->value() )
+            .setWidth( ui->widthSpin->value() )
+            .setHeight( ui->heightSpin->value() )
+            .setName( ui->videoName->text() )
+            .setFramerate( ui->framerateSpin->value() )
+            .setConfigInterval( ui->configInterval->value() );
+    saveMessage.mutuable_configuration().mutable_networkSettings()
+            .setUdpHost( ui->ipAddr->text() )
+            .setUdpPort( ui->ipPort->value() );
+
+    QJsonDocument doc( saveMessage.jsonObj() );
+    m_videoSender.sendBinaryMessage( doc.toJson() );
+}
+
+void SenderConfigurator::on_restartButton_clicked()
+{
+
+    VideoSenderMessage saveMessage;
+
+    saveMessage.setCommand( "restart" );
+
+    QJsonDocument doc( saveMessage.jsonObj() );
+    m_videoSender.sendBinaryMessage( doc.toJson() );
 }

@@ -31,6 +31,10 @@ private Q_SLOTS:
 
     void websocketError( QAbstractSocket::SocketError err );
 
+    void on_saveButton_clicked();
+
+    void on_restartButton_clicked();
+
 private:
     Ui::SenderConfigurator *ui;
     AvahiBrowse* m_avahi;
