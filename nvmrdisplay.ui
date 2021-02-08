@@ -39,6 +39,19 @@
        <attribute name="title">
         <string>Tab 1</string>
        </attribute>
+       <widget class="QLabel" name="directionsLabel">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>9</y>
+          <width>560</width>
+          <height>299</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Directions:&lt;/p&gt;&lt;p&gt;Use the numpad to control the view&lt;br/&gt;&lt;/p&gt;&lt;p&gt;* - View a single camera&lt;/p&gt;&lt;p&gt;+ - Add a camera to the view&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Examples:&lt;/p&gt;&lt;p&gt;*3&amp;lt;enter&amp;gt; - View camera 3&lt;/p&gt;&lt;p&gt;+2&amp;lt;enter&amp;gt; - Add camera 2 to the view&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="webWidget">
        <attribute name="title">
