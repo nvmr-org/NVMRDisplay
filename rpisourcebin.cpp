@@ -17,13 +17,16 @@ RPISourceBin::RPISourceBin(QObject *parent) : VideoSource(parent)
                   NULL );
     gst_caps_unref(caps);
 
+    g_object_set( udpSrc, "auto-multicast", true, nullptr );
+
     GstElement* depay = gst_element_factory_make( "rtph264depay", "depay" );
-    GstElement* parse = gst_element_factory_make( "h264parse", nullptr );
     GstElement* avdec = gst_element_factory_make( "avdec_h264", nullptr );
 
-    gst_bin_add_many(bin, udpSrc, depay, parse, avdec, nullptr );
+    gst_bin_add_many(bin, udpSrc, depay, avdec, nullptr );
 
-    gst_element_link_many( udpSrc, depay, parse, avdec, nullptr );
+    if( !gst_element_link_many( udpSrc, depay, avdec, nullptr ) ){
+        LOG4CXX_ERROR( logger, "Unable to link many" );
+    }
 
     GstPad* source_pad = gst_element_get_static_pad (avdec, "src");
     GstPad* source_ghost_pad = gst_ghost_pad_new ("src", source_pad);
@@ -38,6 +41,7 @@ RPISourceBin::RPISourceBin(QObject *parent) : VideoSource(parent)
 }
 
 RPISourceBin::~RPISourceBin(){
+    gst_element_set_state( m_bin, GST_STATE_NULL );
     gst_object_unref( GST_OBJECT( m_bin ) );
 }
 
@@ -77,5 +81,18 @@ void RPISourceBin::setPort( int port ){
 
     g_object_set( udpSrc,
                   "port", m_port,
+                  NULL );
+}
+
+void RPISourceBin::setAddress(QString addr){
+    GstElement* udpSrc = gst_bin_get_by_name( GST_BIN(m_bin), "udp" );
+    if( udpSrc == nullptr ){
+        LOG4CXX_ERROR( logger, "Unable to get bin UDP?!" );
+        return;
+    }
+
+    std::string stdstr = addr.toStdString();
+    g_object_set( udpSrc,
+                  "address", stdstr.c_str(),
                   NULL );
 }

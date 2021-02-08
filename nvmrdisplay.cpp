@@ -3,6 +3,7 @@
 #include "rpisourcebin.h"
 #include "displaybin.h"
 #include "soospysourcebin.h"
+#include "avahibrowse.h"
 
 #include <QKeyEvent>
 #include <QOpenGLContext>
@@ -76,7 +77,7 @@ NVMRDisplay::NVMRDisplay(QWidget *parent) :
         }
 
         vidSrc->readFromQSettings( &settings );
-        m_videoSources[ vidSrc->videoId() ] = vidSrc;
+        //m_videoSources[ vidSrc->videoId() ] = vidSrc;
         LOG4CXX_DEBUG( logger, "read video ID " << vidSrc->videoId() );
     }
     settings.endArray();
@@ -269,9 +270,14 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
     widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
     widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-//    RPISourceBin* srcBin = new RPISourceBin();
-//    srcBin->setPort( 5248 );
-    VideoSource* srcBin = m_videoSources[ m_numberEntered ];
+    VideoSource* srcBin = nullptr;
+    for( RPIVideoSender* vidsend : m_rpiVideoSenders ){
+        if( vidsend->videoId() == m_numberEntered ){
+            LOG4CXX_DEBUG( logger, "Going to play video " << vidsend->name().toStdString() );
+            srcBin = vidsend->getVideoSource();
+            break;
+        }
+    }
     if( srcBin == nullptr ){
         return;
     }
@@ -336,5 +342,27 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
 #endif
 
 void NVMRDisplay::setAvahiBrowser(AvahiBrowse *avahi){
+    m_avahiBrowse = avahi;
     ui->configuratorWidget->setAvahiBrowser( avahi );
+
+    connect( avahi, &AvahiBrowse::rpiVideoSenderFound,
+             this, &NVMRDisplay::newRPIVideoSender );
+    connect( avahi, &AvahiBrowse::rpiVideoSenderWentAway,
+             this, &NVMRDisplay::rpiVideoSenderWentAway );
+}
+
+void NVMRDisplay::newRPIVideoSender( RPIVideoSender* vidsend ){
+    m_rpiVideoSenders.push_back( vidsend );
+
+    LOG4CXX_DEBUG( logger, "Adding new RPI video sender" );
+
+    connect( vidsend, &RPIVideoSender::videoSourceChanged,
+             this, &NVMRDisplay::rpiVideoSenderInfoChanged );
+}
+
+void NVMRDisplay::rpiVideoSenderWentAway( RPIVideoSender* vidsend ){
+    m_rpiVideoSenders.removeAll( vidsend );
+}
+
+void NVMRDisplay::rpiVideoSenderInfoChanged(){
 }

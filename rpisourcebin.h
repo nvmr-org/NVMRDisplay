@@ -22,6 +22,7 @@ public:
     int port() const;
 
     void setPort( int port );
+    void setAddress( QString addr );
 
 private:
     GstElement* m_bin;

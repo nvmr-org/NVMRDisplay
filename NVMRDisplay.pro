@@ -46,7 +46,8 @@ SOURCES += \
     avahi-dbus/ServerProxy.cpp \
     avahi-dbus/ServiceBrowserProxy.cpp \
     avahi-dbus/ServiceResolverProxy.cpp \
-    avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.cpp
+    avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.cpp \
+    rpivideosender.cpp
 
 HEADERS += \
         nvmrdisplay.h \
@@ -65,7 +66,8 @@ HEADERS += \
     avahi-dbus/ServerProxy.h\
     avahi-dbus/ServiceBrowserProxy.h\
     avahi-dbus/ServiceResolverProxy.h \
-    avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.h
+    avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.h \
+    rpivideosender.h
 
 FORMS += \
         nvmrdisplay.ui \

@@ -17,7 +17,18 @@ enough to fit into a locomotive; currently a Proto 1000 RDC.
 7. Runnable on a Raspberry Pi.
 8. View a webpage as provided by JMRI
 
-## Keypad Control
+# Finding Videos
+
+Two options:
+1. Come up and scan the network for cameras(avahi for RPi cameras)
+2. Read config file for the cameras.  Don't update the config file unless
+something changes(?)
+
+For network simplicity, we will do option 1.  Option 2 will be needed for
+soospy cameras, but those cameras are a little bit away from being
+operational.
+
+# Keypad Control
 
 The intention is to have the GUI controlled by a USB keypad in order to save
 space.  This keypad could also be mounted to the wall for the aisle TV.

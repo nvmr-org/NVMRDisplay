@@ -86,7 +86,24 @@ void AvahiBrowse::signalItemRemoved(int32_t interface,
                                 std::string domain,
                                 uint32_t flags){
     LOG4CXX_DEBUG( logger, "Removed item!  name: " << name << " type: " << type );
+    RPIVideoSender* toremove = nullptr;
+    QString nameAsQStr = QString::fromStdString( name );
 
+    QVector<RPIVideoSender*>::iterator it;
+    for( it = m_resolvedVideoSenders.begin();
+         it != m_resolvedVideoSenders.end();
+         it++ ){
+        if( (*it)->name() == nameAsQStr ){
+            toremove = *it;
+            break;
+        }
+    }
+
+    if( toremove ){
+        m_resolvedVideoSenders.erase( it );
+        Q_EMIT rpiVideoSenderWentAway( toremove );
+        toremove->deleteLater();
+    }
 }
 
 void AvahiBrowse::resolvedFound(int32_t interface,
@@ -111,45 +128,30 @@ void AvahiBrowse::resolvedFound(int32_t interface,
                    << " port: "
                    << port );
 
-    VideoSender newVideoSender;
-    newVideoSender.name = QString::fromStdString( name );
-    newVideoSender.port = port;
-    newVideoSender.address = QString::fromStdString( address );
+    RPIVideoSender* sender = new RPIVideoSender( QString::fromStdString( name ), QString::fromStdString( address ), port, this );
+    m_resolvedVideoSenders.push_back( sender );
+    Q_EMIT rpiVideoSenderFound( sender );
 
-    // We are assuming that the 'name' of the video sender is unique.
-    QVector<VideoSender>::iterator it =
-            std::find_if( m_resolvedVideoSenders.begin(),
-                          m_resolvedVideoSenders.end(),
-                       [newVideoSender]( const VideoSender& fromArray ){
-        return newVideoSender.name == fromArray.name;
-    } );
+//    VideoSender newVideoSender;
+//    newVideoSender.name = QString::fromStdString( name );
+//    newVideoSender.port = port;
+//    newVideoSender.address = QString::fromStdString( address );
 
-    if( it != m_resolvedVideoSenders.end() ){
-        m_resolvedVideoSenders.erase( it );
-    }
-    m_resolvedVideoSenders.push_back( newVideoSender );
-    Q_EMIT videoSendersUpdated();
+//    // We are assuming that the 'name' of the video sender is unique.
+//    QVector<VideoSender>::iterator it =
+//            std::find_if( m_resolvedVideoSenders.begin(),
+//                          m_resolvedVideoSenders.end(),
+//                       [newVideoSender]( const VideoSender& fromArray ){
+//        return newVideoSender.name == fromArray.name;
+//    } );
+
+//    if( it != m_resolvedVideoSenders.end() ){
+//        m_resolvedVideoSenders.erase( it );
+//    }
+//    m_resolvedVideoSenders.push_back( newVideoSender );
+//    Q_EMIT videoSendersUpdated();
 }
 
 void AvahiBrowse::resolvedError(std::string err){
     LOG4CXX_ERROR( logger, "Resolver had error: " << err );
-}
-
-QVector<VideoSender> AvahiBrowse::getVideoSenders(){
-    return m_resolvedVideoSenders;
-}
-
-VideoSender AvahiBrowse::getVideoSenderByID(QString id){
-    QVector<VideoSender>::iterator it =
-            std::find_if( m_resolvedVideoSenders.begin(),
-                          m_resolvedVideoSenders.end(),
-                       [id]( const VideoSender& fromArray ){
-        return id == fromArray.name;
-    } );
-
-    if( it == m_resolvedVideoSenders.end() ){
-        return VideoSender();
-    }
-
-    return *it;
 }
