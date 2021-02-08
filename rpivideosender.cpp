@@ -43,16 +43,6 @@ void RPIVideoSender::binaryMessageRx( const QByteArray& binaryMsg ){
     m_videoSource.setPort( m_lastValidVideoInfo->configuration().networkSettings().udpPort() );
     m_videoSource.setAddress( m_lastValidVideoInfo->configuration().networkSettings().udpHost() );
 
-//    ui->uuidLabel->setText( videoSenderMsg.configuration().uuid() );
-//    ui->videoName->setText( videoSenderMsg.configuration().videoSettings().name() );
-//    ui->heightSpin->setValue( videoSenderMsg.configuration().videoSettings().height() );
-//    ui->widthSpin->setValue( videoSenderMsg.configuration().videoSettings().width() );
-//    ui->ptSpin->setValue( videoSenderMsg.configuration().videoSettings().pt() );
-//    ui->configInterval->setValue( videoSenderMsg.configuration().videoSettings().configInterval() );
-
-//    ui->ipAddr->setText( videoSenderMsg.configuration().networkSettings().udpHost() );
-//    ui->ipPort->setValue( videoSenderMsg.configuration().networkSettings().udpPort() );
-
     Q_EMIT videoSourceChanged();
 }
 
@@ -85,4 +75,27 @@ int RPIVideoSender::videoId() const {
 
 VideoSource* RPIVideoSender::getVideoSource() {
     return &m_videoSource;
+}
+
+const std::shared_ptr<const VideoSenderMessage> RPIVideoSender::lastValidInfo() const{
+    return m_lastValidVideoInfo;
+}
+
+void RPIVideoSender::setNewSettings(VideoSenderConfiguration settings){
+    VideoSenderMessage vidsendMsg;
+    vidsendMsg.setCommand( "set" );
+
+    vidsendMsg.mutuable_configuration() = settings;
+    QJsonDocument doc( vidsendMsg.jsonObj() );
+
+    m_lastValidVideoInfo = std::shared_ptr<VideoSenderMessage>( new VideoSenderMessage( doc.object() ) );
+    m_videoSender.sendBinaryMessage( doc.toJson() );
+}
+
+void RPIVideoSender::requestRestart() {
+    VideoSenderMessage msg;
+    msg.setCommand( "restart" );
+
+    QJsonDocument doc( msg.jsonObj() );
+    m_videoSender.sendBinaryMessage( doc.toJson() );
 }

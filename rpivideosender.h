@@ -20,6 +20,10 @@ public:
     VideoSource* getVideoSource();
     QString name() const;
     int videoId() const;
+    const std::shared_ptr<const VideoSenderMessage> lastValidInfo() const;
+
+    void setNewSettings( VideoSenderConfiguration settings );
+    void requestRestart();
 
 Q_SIGNALS:
     void videoSourceChanged();

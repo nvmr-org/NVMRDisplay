@@ -2,13 +2,13 @@
 #define SENDERCONFIGURATOR_H
 
 #include <QWidget>
-#include <QWebSocket>
 
 namespace Ui {
 class SenderConfigurator;
 }
 
 class AvahiBrowse;
+class RPIVideoSender;
 
 class SenderConfigurator : public QWidget
 {
@@ -21,24 +21,20 @@ public:
     void setAvahiBrowser( AvahiBrowse* avahi );
 
 private Q_SLOTS:
-    void videoSendersUpdated();
-
-    void on_videoSenderSelection_activated(const QString &arg1);
-
-    void binaryMessageRx( const QByteArray& binaryMsg );
-
-    void queryData();
-
-    void websocketError( QAbstractSocket::SocketError err );
+    void rpiVideoSenderFound( RPIVideoSender* vidsend );
+    void rpiVideoSenderWentAway( RPIVideoSender* vidsend );
 
     void on_saveButton_clicked();
 
     void on_restartButton_clicked();
 
+    void on_videoSenderSelection_activated(int index);
+
 private:
     Ui::SenderConfigurator *ui;
     AvahiBrowse* m_avahi;
-    QWebSocket m_videoSender;
+    RPIVideoSender* m_current;
+    QVector<RPIVideoSender*> m_videoSenders;
 };
 
 #endif // SENDERCONFIGURATOR_H
