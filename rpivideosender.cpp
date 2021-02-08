@@ -70,6 +70,7 @@ QString RPIVideoSender::name() const {
 }
 
 int RPIVideoSender::videoId() const {
+    if( !m_lastValidVideoInfo ) return -1;
     return m_lastValidVideoInfo->configuration().videoSettings().id();
 }
 
