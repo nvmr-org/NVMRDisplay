@@ -58,7 +58,8 @@ void SenderConfigurator::on_saveButton_clicked()
             .setConfigInterval( ui->configInterval->value() );
     config.mutable_networkSettings()
             .setUdpHost( ui->ipAddr->text() )
-            .setUdpPort( ui->ipPort->value() );
+            .setUdpPort( ui->ipPort->value() )
+            .setBroadcast( ui->broadcastEnabled->isChecked() );
 
     if( !m_current ){
         return;
@@ -88,6 +89,7 @@ void SenderConfigurator::on_videoSenderSelection_activated(int index)
         ui->configInterval->setValue( 0 );
         ui->idSpin->setValue( 0 );
         ui->framerateSpin->setValue( 0 );
+        ui->systemIpAddr->setText( "" );
 
         ui->ipAddr->setText( "" );
         ui->ipPort->setValue( 0 );
@@ -105,7 +107,9 @@ void SenderConfigurator::on_videoSenderSelection_activated(int index)
     ui->configInterval->setValue( lastMsg->configuration().videoSettings().configInterval() );
     ui->idSpin->setValue( lastMsg->configuration().videoSettings().id() );
     ui->framerateSpin->setValue( lastMsg->configuration().videoSettings().framerate() );
+    ui->systemIpAddr->setText( m_current->ipAddress() );
 
     ui->ipAddr->setText( lastMsg->configuration().networkSettings().udpHost() );
     ui->ipPort->setValue( lastMsg->configuration().networkSettings().udpPort() );
+    ui->broadcastEnabled->setChecked( lastMsg->configuration().networkSettings().broadcast() );
 }

@@ -9,7 +9,8 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.RPIVide
 
 RPIVideoSender::RPIVideoSender( QString name, QString address, int port, QObject* parent ) :
     QObject( parent ),
-    m_name( name )
+    m_name( name ),
+    m_ipAddr( address )
 {
     connect( &m_videoSender, &QWebSocket::binaryMessageReceived,
              this, &RPIVideoSender::binaryMessageRx );
@@ -98,5 +99,19 @@ void RPIVideoSender::requestRestart() {
     msg.setCommand( "restart" );
 
     QJsonDocument doc( msg.jsonObj() );
+    m_videoSender.sendBinaryMessage( doc.toJson() );
+}
+
+QString RPIVideoSender::ipAddress() const {
+    return m_ipAddr;
+}
+
+void RPIVideoSender::startStreamingVideo( int portNumber ){
+    VideoSenderMessage vidsendMsg;
+    vidsendMsg.setCommand( "stream" );
+
+    vidsendMsg.mutable_streaminformation().setPort( portNumber );
+    QJsonDocument doc( vidsendMsg.jsonObj() );
+
     m_videoSender.sendBinaryMessage( doc.toJson() );
 }

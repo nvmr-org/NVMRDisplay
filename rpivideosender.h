@@ -24,6 +24,7 @@ public:
 
     void setNewSettings( VideoSenderConfiguration settings );
     void requestRestart();
+    QString ipAddress() const;
 
 Q_SIGNALS:
     void videoSourceChanged();
@@ -33,12 +34,14 @@ private Q_SLOTS:
     void queryData();
     void websocketError( QAbstractSocket::SocketError err );
     void connectToRPI();
+    void startStreamingVideo( int portNumber );
 
 private:
     QString m_name;
     QWebSocket m_videoSender;
     QTimer m_reconnectTimer;
     QString m_websocketAddr;
+    QString m_ipAddr;
     RPISourceBin m_videoSource;
     std::shared_ptr<VideoSenderMessage> m_lastValidVideoInfo;
 };
