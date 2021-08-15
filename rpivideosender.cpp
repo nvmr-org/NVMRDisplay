@@ -41,8 +41,8 @@ void RPIVideoSender::binaryMessageRx( const QByteArray& binaryMsg ){
     }
 
     m_lastValidVideoInfo = std::shared_ptr<VideoSenderMessage>( new VideoSenderMessage( doc.object() ) );
-    m_videoSource.setPort( m_lastValidVideoInfo->configuration().networkSettings().udpPort() );
-    m_videoSource.setAddress( m_lastValidVideoInfo->configuration().networkSettings().udpHost() );
+//    m_videoSource.setPort( m_lastValidVideoInfo->configuration().networkSettings().udpPort() );
+//    m_videoSource.setAddress( m_lastValidVideoInfo->configuration().networkSettings().udpHost() );
 
     Q_EMIT videoSourceChanged();
 }
@@ -107,10 +107,21 @@ QString RPIVideoSender::ipAddress() const {
 }
 
 void RPIVideoSender::startStreamingVideo( int portNumber ){
+    LOG4CXX_DEBUG( logger, "Having the RPI stream video to us, port " << portNumber );
+
     VideoSenderMessage vidsendMsg;
-    vidsendMsg.setCommand( "stream" );
+    vidsendMsg.setCommand( "send-video" );
 
     vidsendMsg.mutable_streaminformation().setPort( portNumber );
+    QJsonDocument doc( vidsendMsg.jsonObj() );
+
+    m_videoSender.sendBinaryMessage( doc.toJson() );
+}
+
+void RPIVideoSender::stopStreamingVideo(){
+    VideoSenderMessage vidsendMsg;
+    vidsendMsg.setCommand( "stop-video" );
+
     QJsonDocument doc( vidsendMsg.jsonObj() );
 
     m_videoSender.sendBinaryMessage( doc.toJson() );

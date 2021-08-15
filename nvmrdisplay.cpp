@@ -25,8 +25,9 @@ static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdis
 class SetPlaying : public QRunnable
 {
 public:
-    SetPlaying(GstElement * pipeline){
+    SetPlaying(GstElement * pipeline, RPIVideoSender* vidSend){
         this->pipeline_ = pipeline ? static_cast<GstElement *> (gst_object_ref (pipeline)) : NULL;
+        m_vidSend = vidSend;
     }
 
     ~SetPlaying(){
@@ -38,10 +39,16 @@ public:
         LOG4CXX_DEBUG( logger, "Starting pipeline" );
         if (this->pipeline_)
           gst_element_set_state (this->pipeline_, GST_STATE_PLAYING);
+
+        if( m_vidSend ){
+            RPISourceBin* bin = static_cast<RPISourceBin*>( m_vidSend->getVideoSource() );
+            m_vidSend->startStreamingVideo( bin->port() );
+        }
     }
 
 private:
   GstElement * pipeline_;
+  RPIVideoSender* m_vidSend;
 };
 
 NVMRDisplay::NVMRDisplay(QWidget *parent) :
@@ -271,10 +278,13 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
     widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
     VideoSource* srcBin = nullptr;
+    RPIVideoSender* rpiSrc = nullptr;
     for( RPIVideoSender* vidsend : m_rpiVideoSenders ){
         if( vidsend->videoId() == m_numberEntered ){
             LOG4CXX_DEBUG( logger, "Going to play video " << vidsend->name().toStdString() );
             srcBin = vidsend->getVideoSource();
+
+            rpiSrc = vidsend;
             break;
         }
     }
@@ -300,7 +310,7 @@ void NVMRDisplay::playVideo(QQuickWidget *widget){
         LOG4CXX_ERROR( logger, "Unable to link source to sink" );
     }
 
-    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
+    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline, rpiSrc),
           QQuickWindow::BeforeSynchronizingStage);
 }
 

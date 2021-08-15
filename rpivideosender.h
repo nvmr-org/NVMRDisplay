@@ -29,12 +29,15 @@ public:
 Q_SIGNALS:
     void videoSourceChanged();
 
+public Q_SLOTS:
+    void startStreamingVideo( int portNumber );
+    void stopStreamingVideo();
+
 private Q_SLOTS:
     void binaryMessageRx( const QByteArray& binaryMsg );
     void queryData();
     void websocketError( QAbstractSocket::SocketError err );
     void connectToRPI();
-    void startStreamingVideo( int portNumber );
 
 private:
     QString m_name;

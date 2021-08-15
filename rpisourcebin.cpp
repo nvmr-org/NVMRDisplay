@@ -17,7 +17,7 @@ RPISourceBin::RPISourceBin(QObject *parent) : VideoSource(parent)
                   NULL );
     gst_caps_unref(caps);
 
-    g_object_set( udpSrc, "auto-multicast", true, nullptr );
+    g_object_set( udpSrc, "port", 0, nullptr );
 
     GstElement* depay = gst_element_factory_make( "rtph264depay", "depay" );
     GstElement* avdec = gst_element_factory_make( "avdec_h264", nullptr );
@@ -67,7 +67,16 @@ GstElement* RPISourceBin::getBin(){
 }
 
 int RPISourceBin::port() const{
-    return m_port;
+    GstElement* udpSrc = gst_bin_get_by_name( GST_BIN(m_bin), "udp" );
+    if( udpSrc == nullptr ){
+        LOG4CXX_ERROR( logger, "Unable to get bin UDP?!" );
+        return -1;
+    }
+
+    int port;
+    g_object_get( udpSrc, "port", &port, nullptr );
+
+    return port;
 }
 
 void RPISourceBin::setPort( int port ){
