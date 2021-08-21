@@ -100,6 +100,7 @@ RPIVideoDisplay::RPIVideoDisplay(RPIVideoSender* vidsend,
 
 RPIVideoDisplay::~RPIVideoDisplay(){
     stop();
+    m_videoSender->stopStreamingVideo();
     delete m_videoWidget;
     delete m_displayBin;
 }
@@ -116,7 +117,6 @@ void RPIVideoDisplay::stop(){
     LOG4CXX_DEBUG( logger, "Stopping video " << videoId() );
     m_videoWidget->quickWindow()->scheduleRenderJob (new SetPlaying (m_pipeline, m_videoSender, GST_STATE_NULL),
           QQuickWindow::BeforeSynchronizingStage);
-    m_videoSender->stopStreamingVideo();
     m_videoWidget->repaint();
 }
 

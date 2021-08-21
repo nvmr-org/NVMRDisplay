@@ -138,11 +138,13 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
             for( RPIVideoDisplay* display : m_currentlyShowingVideos ){
                 display->stop();
                 m_mainLayout.removeWidget( display->widget() );
+                display->widget()->setVisible( false );
             }
             m_currentlyShowingVideos.clear();
 
             m_currentlyShowingVideos.push_back( displayToUse );
             m_mainLayout.addWidget( displayToUse->widget() );
+            displayToUse->widget()->setVisible( true );
             displayToUse->play();
             break;
         }
