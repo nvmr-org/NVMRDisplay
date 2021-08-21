@@ -22,35 +22,6 @@
 
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdisplay" );
 
-class SetPlaying : public QRunnable
-{
-public:
-    SetPlaying(GstElement * pipeline, RPIVideoSender* vidSend){
-        this->pipeline_ = pipeline ? static_cast<GstElement *> (gst_object_ref (pipeline)) : NULL;
-        m_vidSend = vidSend;
-    }
-
-    ~SetPlaying(){
-        if (this->pipeline_)
-          gst_object_unref (this->pipeline_);
-    }
-
-    void run (){
-        LOG4CXX_DEBUG( logger, "Starting pipeline" );
-        if (this->pipeline_)
-          gst_element_set_state (this->pipeline_, GST_STATE_PLAYING);
-
-        if( m_vidSend ){
-            RPISourceBin* bin = static_cast<RPISourceBin*>( m_vidSend->getVideoSource() );
-            m_vidSend->startStreamingVideo( bin->port() );
-        }
-    }
-
-private:
-  GstElement * pipeline_;
-  RPIVideoSender* m_vidSend;
-};
-
 NVMRDisplay::NVMRDisplay(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::NVMRDisplay),
@@ -151,26 +122,38 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
         case CurrentCommand::ViewCamera:
         {
             // Show only the one camera
-            for( QQuickWidget* wid: m_videos ){
-                m_mainLayout.removeWidget( wid );
-                wid->deleteLater();
+            RPIVideoDisplay* displayToUse = nullptr;
+            for( RPIVideoDisplay* display : m_availableRPI ){
+                if( display->videoId() == m_numberEntered ){
+                    displayToUse = display;
+                    break;
+                }
             }
-            m_videos.clear();
 
-            QQuickWidget* displayWidget = new QQuickWidget();
-            m_mainLayout.addWidget( displayWidget );
-            m_videos.push_back( displayWidget );
-            playVideo( displayWidget );
+            if( !displayToUse ){
+                break;
+            }
+
+            // Remove anything that is currently playing
+            for( RPIVideoDisplay* display : m_currentlyShowingVideos ){
+                display->stop();
+                m_mainLayout.removeWidget( display->widget() );
+            }
+            m_currentlyShowingVideos.clear();
+
+            m_currentlyShowingVideos.push_back( displayToUse );
+            m_mainLayout.addWidget( displayToUse->widget() );
+            displayToUse->play();
             break;
         }
         case CurrentCommand::AddCamera:
         {
             // Remove the first video
-            if( m_videos.size() > 3 ){
-                m_videos[ 0 ]->deleteLater();
-                m_mainLayout.removeWidget( m_videos[ 0 ] );
-                m_videos.pop_front();
-            }
+//            if( m_videos.size() > 3 ){
+//                m_videos[ 0 ]->deleteLater();
+//                m_mainLayout.removeWidget( m_videos[ 0 ] );
+//                m_videos.pop_front();
+//            }
 
             // Remove all of the videos from the layout so we add them back in order.
 //            for( QQuickWidget* wid: m_videos ){
@@ -183,10 +166,10 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
 
 //            }
 
-            QGridLayout* newLayout = new QGridLayout();
-            QQuickWidget* displayWidget = new QQuickWidget();
-            m_videos.push_back( displayWidget );
-            m_mainLayout.addWidget( displayWidget );
+//            QGridLayout* newLayout = new QGridLayout();
+//            QQuickWidget* displayWidget = new QQuickWidget();
+//            m_videos.push_back( displayWidget );
+//            m_mainLayout.addWidget( displayWidget );
 
 //            int row = 0;
 //            int col = 0;
@@ -202,7 +185,7 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
 //                }
 //            }
 
-            playVideo( displayWidget );
+//            playVideo( displayWidget );
 
             break;
         }
@@ -225,37 +208,7 @@ bool NVMRDisplay::isKeySpecial( QKeyEvent* evt ) const {
     }
 }
 
-static gboolean
-my_bus_callback (GstBus * bus, GstMessage * message, gpointer data)
-{
-  switch (GST_MESSAGE_TYPE (message)) {
-    case GST_MESSAGE_ERROR:{
-      GError *err;
-      gchar *debug;
 
-
-      gst_message_parse_error (message, &err, &debug);
-      LOG4CXX_ERROR( logger, err->message );
-      g_error_free (err);
-      g_free (debug);
-
-      break;
-    }
-    case GST_MESSAGE_EOS:
-      /* end-of-stream */
-      //g_main_loop_quit (loop);
-      break;
-    default:
-      /* unhandled message */
-      break;
-  }
-
-  /* we want to be notified again the next time there is a message
-   * on the bus, so returning TRUE (FALSE means we want to stop watching
-   * for messages on the bus and our callback should not be called again)
-   */
-  return TRUE;
-}
 
 bool NVMRDisplay::functionKeyHandled( QKeyEvent* event ){
     if( event->key() == Qt::Key_F1 ){
@@ -274,44 +227,44 @@ bool NVMRDisplay::functionKeyHandled( QKeyEvent* event ){
 
 #if 1
 void NVMRDisplay::playVideo(QQuickWidget *widget){
-    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
-    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+//    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
+//    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
 
-    VideoSource* srcBin = nullptr;
-    RPIVideoSender* rpiSrc = nullptr;
-    for( RPIVideoSender* vidsend : m_rpiVideoSenders ){
-        if( vidsend->videoId() == m_numberEntered ){
-            LOG4CXX_DEBUG( logger, "Going to play video " << vidsend->name().toStdString() );
-            srcBin = vidsend->getVideoSource();
+//    VideoSource* srcBin = nullptr;
+//    RPIVideoSender* rpiSrc = nullptr;
+//    for( RPIVideoSender* vidsend : m_rpiVideoSenders ){
+//        if( vidsend->videoId() == m_numberEntered ){
+//            LOG4CXX_DEBUG( logger, "Going to play video " << vidsend->name().toStdString() );
+//            srcBin = vidsend->getVideoSource();
 
-            rpiSrc = vidsend;
-            break;
-        }
-    }
-    if( srcBin == nullptr ){
-        return;
-    }
+//            rpiSrc = vidsend;
+//            break;
+//        }
+//    }
+//    if( srcBin == nullptr ){
+//        return;
+//    }
 
-    DisplayBin* dispBin = new DisplayBin();
+//    DisplayBin* dispBin = new DisplayBin();
 
-    dispBin->linkToQQuickWidget( widget );
+//    dispBin->linkToQQuickWidget( widget );
 
-    GstElement *pipeline = gst_pipeline_new ("foopipeline");
-    GstElement* source = srcBin->getBin();
-//    GstElement* source = gst_element_factory_make( "videotestsrc", "src" );
-    GstElement* sink = dispBin->bin();
+//    GstElement *pipeline = gst_pipeline_new ("foopipeline");
+//    GstElement* source = srcBin->getBin();
+////    GstElement* source = gst_element_factory_make( "videotestsrc", "src" );
+//    GstElement* sink = dispBin->bin();
 
-    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
-    gst_object_unref (bus);
+//    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
+//    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
+//    gst_object_unref (bus);
 
-    gst_bin_add_many (GST_BIN (pipeline), source, sink, nullptr);
-    if( !gst_element_link( source, sink ) ){
-        LOG4CXX_ERROR( logger, "Unable to link source to sink" );
-    }
+//    gst_bin_add_many (GST_BIN (pipeline), source, sink, nullptr);
+//    if( !gst_element_link( source, sink ) ){
+//        LOG4CXX_ERROR( logger, "Unable to link source to sink" );
+//    }
 
-    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline, rpiSrc),
-          QQuickWindow::BeforeSynchronizingStage);
+//    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline, rpiSrc),
+//          QQuickWindow::BeforeSynchronizingStage);
 }
 
 #else
@@ -362,7 +315,8 @@ void NVMRDisplay::setAvahiBrowser(AvahiBrowse *avahi){
 }
 
 void NVMRDisplay::newRPIVideoSender( RPIVideoSender* vidsend ){
-    m_rpiVideoSenders.push_back( vidsend );
+    RPIVideoDisplay* rpiDisp = new RPIVideoDisplay( vidsend, this );
+    m_availableRPI.push_back( rpiDisp );
 
     LOG4CXX_DEBUG( logger, "Adding new RPI video sender" );
 
@@ -371,7 +325,13 @@ void NVMRDisplay::newRPIVideoSender( RPIVideoSender* vidsend ){
 }
 
 void NVMRDisplay::rpiVideoSenderWentAway( RPIVideoSender* vidsend ){
-    m_rpiVideoSenders.removeAll( vidsend );
+    std::remove_if( std::begin( m_availableRPI ),
+                    std::end( m_availableRPI ),
+                    [vidsend]( RPIVideoDisplay* disp ){
+        return disp->videoId() == vidsend->videoId();
+    });
+
+    // TODO remove video if playing
 }
 
 void NVMRDisplay::rpiVideoSenderInfoChanged(){

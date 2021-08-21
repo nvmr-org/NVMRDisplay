@@ -99,6 +99,7 @@ void SenderConfigurator::on_videoSenderSelection_activated(int index)
     m_current = m_videoSenders[ index - 1 ];
 
     const std::shared_ptr<const VideoSenderMessage> lastMsg = m_current->lastValidInfo();
+    if( !lastMsg ) return;
     ui->uuidLabel->setText( lastMsg->configuration().uuid() );
     ui->videoName->setText( lastMsg->configuration().videoSettings().name() );
     ui->heightSpin->setValue( lastMsg->configuration().videoSettings().height() );

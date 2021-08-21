@@ -9,6 +9,7 @@
 
 #include "videosource.h"
 #include "rpivideosender.h"
+#include "rpivideodisplay.h"
 
 namespace Ui {
 class NVMRDisplay;
@@ -51,12 +52,11 @@ private:
     Ui::NVMRDisplay *ui;
     int m_numberEntered;
     CurrentCommand m_currentCommand;
-    QVector<QQuickWidget*> m_videos;
     QGridLayout m_mainLayout;
-//    QMap<int,VideoSource*> m_videoSources;
     QMap<int,QUrl> m_wepageSources;
     AvahiBrowse* m_avahiBrowse;
-    QVector<RPIVideoSender*> m_rpiVideoSenders;
+    QVector<RPIVideoDisplay*> m_availableRPI;
+    QVector<RPIVideoDisplay*> m_currentlyShowingVideos;
 };
 
 inline std::ostream& operator<<( std::ostream& stream, CurrentCommand cmd ){
