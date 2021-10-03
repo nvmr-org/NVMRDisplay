@@ -137,20 +137,57 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
             // Remove anything that is currently playing
             for( RPIVideoDisplay* display : m_currentlyShowingVideos ){
                 display->stop();
-                m_mainLayout.removeWidget( display->widget() );
+//                m_mainLayout.removeWidget( display->widget() );
                 display->widget()->setVisible( false );
             }
             m_currentlyShowingVideos.clear();
+//            m_mainLayout.invalidate();
 
             m_currentlyShowingVideos.push_back( displayToUse );
-            m_mainLayout.addWidget( displayToUse->widget() );
             displayToUse->widget()->setVisible( true );
             displayToUse->play();
+
+            LOG4CXX_DEBUG( logger, "number rows: " << m_mainLayout.rowCount() );
+//            m_mainLayout.setColumnStretch( 0, 1 );
+//            m_mainLayout.setRowStretch( 0, 1 );
             break;
         }
         case CurrentCommand::AddCamera:
         {
-            // Remove the first video
+            RPIVideoDisplay* displayToUse = nullptr;
+            for( RPIVideoDisplay* display : m_availableRPI ){
+                if( display->videoId() == m_numberEntered ){
+                    displayToUse = display;
+                    break;
+                }
+            }
+
+            if( !displayToUse ){
+                // Invalid video entered - do nothing
+                break;
+            }
+
+            // Remove the first video if we have too many videos
+            if( m_currentlyShowingVideos.size() > 3 ){
+                m_currentlyShowingVideos[0]->stop();
+                m_currentlyShowingVideos[0]->widget()->setVisible(false);
+            }
+
+            m_currentlyShowingVideos.push_back( displayToUse );
+//            m_mainLayout.addWidget( displayToUse->widget() );
+            displayToUse->widget()->setVisible( true );
+            displayToUse->play();
+            for( int col = 0; col < m_mainLayout.columnCount(); col++ ){
+                m_mainLayout.setColumnStretch( col, 1 );
+            }
+            for( int row = 0; row < m_mainLayout.rowCount(); row++ ){
+                m_mainLayout.setRowStretch( row, 0 );
+            }
+
+//            m_mainLayout.setColumnStretch( 0, 1 );
+//            m_mainLayout.setRowStretch( 0, 1 );
+//            m_mainLayout.setRowStretch( 1, 1 );
+
 //            if( m_videos.size() > 3 ){
 //                m_videos[ 0 ]->deleteLater();
 //                m_mainLayout.removeWidget( m_videos[ 0 ] );
@@ -320,6 +357,9 @@ void NVMRDisplay::newRPIVideoSender( RPIVideoSender* vidsend ){
     RPIVideoDisplay* rpiDisp = new RPIVideoDisplay( vidsend, this );
     m_availableRPI.push_back( rpiDisp );
 
+    m_mainLayout.addWidget( rpiDisp->widget() );
+    rpiDisp->widget()->setVisible(false);
+
     LOG4CXX_DEBUG( logger, "Adding new RPI video sender" );
 
     connect( vidsend, &RPIVideoSender::videoSourceChanged,
@@ -334,6 +374,8 @@ void NVMRDisplay::rpiVideoSenderWentAway( RPIVideoSender* vidsend ){
     });
 
     // TODO remove video if playing
+
+//    m_mainLayout.removeWidget( vidsend->widget() );
 }
 
 void NVMRDisplay::rpiVideoSenderInfoChanged(){
