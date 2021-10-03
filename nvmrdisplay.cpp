@@ -359,6 +359,8 @@ void NVMRDisplay::newRPIVideoSender( RPIVideoSender* vidsend ){
 
     m_mainLayout.addWidget( rpiDisp->widget() );
     rpiDisp->widget()->setVisible(false);
+    rpiDisp->widget()->sizePolicy().setHorizontalStretch(1);
+    rpiDisp->widget()->sizePolicy().setVerticalStretch(1);
 
     LOG4CXX_DEBUG( logger, "Adding new RPI video sender" );
 
