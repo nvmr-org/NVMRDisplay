@@ -5,6 +5,7 @@
 #include <QQuickWidget>
 #include <QVector>
 #include <QGridLayout>
+#include <QVBoxLayout>
 #include <ostream>
 
 #include "videosource.h"
@@ -39,7 +40,6 @@ public:
     void setAvahiBrowser( AvahiBrowse* avahi );
 
 private:
-    void playVideo( QQuickWidget* widget );
     bool isKeySpecial( QKeyEvent* event ) const;
     bool functionKeyHandled( QKeyEvent* event );
 
@@ -52,7 +52,7 @@ private:
     Ui::NVMRDisplay *ui;
     int m_numberEntered;
     CurrentCommand m_currentCommand;
-    QGridLayout m_mainLayout;
+    QVBoxLayout m_mainLayout;
     QMap<int,QUrl> m_wepageSources;
     AvahiBrowse* m_avahiBrowse;
     QVector<RPIVideoDisplay*> m_availableRPI;

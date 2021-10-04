@@ -137,19 +137,13 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
             // Remove anything that is currently playing
             for( RPIVideoDisplay* display : m_currentlyShowingVideos ){
                 display->stop();
-//                m_mainLayout.removeWidget( display->widget() );
                 display->widget()->setVisible( false );
             }
             m_currentlyShowingVideos.clear();
-//            m_mainLayout.invalidate();
 
             m_currentlyShowingVideos.push_back( displayToUse );
             displayToUse->widget()->setVisible( true );
             displayToUse->play();
-
-            LOG4CXX_DEBUG( logger, "number rows: " << m_mainLayout.rowCount() );
-//            m_mainLayout.setColumnStretch( 0, 1 );
-//            m_mainLayout.setRowStretch( 0, 1 );
             break;
         }
         case CurrentCommand::AddCamera:
@@ -177,54 +171,6 @@ void NVMRDisplay::keyPressEvent(QKeyEvent *event){
 //            m_mainLayout.addWidget( displayToUse->widget() );
             displayToUse->widget()->setVisible( true );
             displayToUse->play();
-            for( int col = 0; col < m_mainLayout.columnCount(); col++ ){
-                m_mainLayout.setColumnStretch( col, 1 );
-            }
-            for( int row = 0; row < m_mainLayout.rowCount(); row++ ){
-                m_mainLayout.setRowStretch( row, 0 );
-            }
-
-//            m_mainLayout.setColumnStretch( 0, 1 );
-//            m_mainLayout.setRowStretch( 0, 1 );
-//            m_mainLayout.setRowStretch( 1, 1 );
-
-//            if( m_videos.size() > 3 ){
-//                m_videos[ 0 ]->deleteLater();
-//                m_mainLayout.removeWidget( m_videos[ 0 ] );
-//                m_videos.pop_front();
-//            }
-
-            // Remove all of the videos from the layout so we add them back in order.
-//            for( QQuickWidget* wid: m_videos ){
-//                //wid->setParent( this );
-//                LOG4CXX_DEBUG( logger, "removing height: "
-//                               << wid->size().height()
-//                               << " width: "
-//                               << wid->size().width() );
-//                m_mainLayout.removeWidget( wid );
-
-//            }
-
-//            QGridLayout* newLayout = new QGridLayout();
-//            QQuickWidget* displayWidget = new QQuickWidget();
-//            m_videos.push_back( displayWidget );
-//            m_mainLayout.addWidget( displayWidget );
-
-//            int row = 0;
-//            int col = 0;
-//            for( QQuickWidget* wid : m_videos ){
-//                m_mainLayout.removeWidget( wid );
-////                m_mainLayout.addWidget( wid );
-//                LOG4CXX_DEBUG( logger, "add at " << row << ":" << col );
-//                newLayout->addWidget( wid, row, col );
-//                col++;
-//                if( col > 1 ){
-//                    col = 0;
-//                    row++;
-//                }
-//            }
-
-//            playVideo( displayWidget );
 
             break;
         }
@@ -263,85 +209,6 @@ bool NVMRDisplay::functionKeyHandled( QKeyEvent* event ){
 
     return false;
 }
-
-#if 1
-void NVMRDisplay::playVideo(QQuickWidget *widget){
-//    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
-//    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-//    VideoSource* srcBin = nullptr;
-//    RPIVideoSender* rpiSrc = nullptr;
-//    for( RPIVideoSender* vidsend : m_rpiVideoSenders ){
-//        if( vidsend->videoId() == m_numberEntered ){
-//            LOG4CXX_DEBUG( logger, "Going to play video " << vidsend->name().toStdString() );
-//            srcBin = vidsend->getVideoSource();
-
-//            rpiSrc = vidsend;
-//            break;
-//        }
-//    }
-//    if( srcBin == nullptr ){
-//        return;
-//    }
-
-//    DisplayBin* dispBin = new DisplayBin();
-
-//    dispBin->linkToQQuickWidget( widget );
-
-//    GstElement *pipeline = gst_pipeline_new ("foopipeline");
-//    GstElement* source = srcBin->getBin();
-////    GstElement* source = gst_element_factory_make( "videotestsrc", "src" );
-//    GstElement* sink = dispBin->bin();
-
-//    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-//    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
-//    gst_object_unref (bus);
-
-//    gst_bin_add_many (GST_BIN (pipeline), source, sink, nullptr);
-//    if( !gst_element_link( source, sink ) ){
-//        LOG4CXX_ERROR( logger, "Unable to link source to sink" );
-//    }
-
-//    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline, rpiSrc),
-//          QQuickWindow::BeforeSynchronizingStage);
-}
-
-#else
-void NVMRDisplay::playVideo(QQuickWidget *widget){
-    widget->setSource(QUrl("qrc:/quickwidget/video.qml"));
-    widget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-
-    GstElement *pipeline = gst_pipeline_new ("foopipeline");
-    GstElement *src = gst_element_factory_make ("videotestsrc", NULL);
-    GstElement* convert = gst_element_factory_make( "autovideoconvert", NULL );
-
-    GstElement* sinkQml = gst_element_factory_make ("qmlglsink", nullptr);
-    GstElement* sinkBin = gst_element_factory_make("glsinkbin", nullptr);
-
-    g_object_set (sinkBin, "sink", sinkQml, nullptr);
-
-    gst_bin_add_many (GST_BIN (pipeline), src, convert, sinkBin, nullptr);
-    gst_element_link_many (src, convert, sinkBin, nullptr);
-
-    GstBus* bus = gst_pipeline_get_bus (GST_PIPELINE (pipeline));
-    guint bus_watch_id = gst_bus_add_watch (bus, my_bus_callback, NULL);
-    gst_object_unref (bus);
-
-    if( pipeline == nullptr || src == nullptr || sinkQml == nullptr ){
-        LOG4CXX_ERROR( logger, "something null" );
-        return;
-    }
-
-    QQuickItem* quickRoot = widget->rootObject();
-    g_object_set( sinkQml,
-                  "widget", quickRoot->findChild<QQuickItem*>( "videoItem" ),
-                  nullptr );
-
-    LOG4CXX_DEBUG( logger, "schedule the render job.  ptr is " << quickRoot->findChild<QQuickItem*>( "videoItem" ) );
-    widget->quickWindow()->scheduleRenderJob (new SetPlaying (pipeline),
-          QQuickWindow::BeforeSynchronizingStage);
-}
-#endif
 
 void NVMRDisplay::setAvahiBrowser(AvahiBrowse *avahi){
     m_avahiBrowse = avahi;
