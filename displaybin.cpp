@@ -13,6 +13,7 @@ DisplayBin::DisplayBin(QObject *parent) : QObject(parent)
 
     GstElement* convert = gst_element_factory_make( "videoconvert", nullptr );
     GstElement* sinkBin = gst_element_factory_make("glsinkbin", nullptr);
+    GstElement* videoRotate = gst_element_factory_make( "videoflip", "rotate" );
     m_qml = gst_element_factory_make ("qmlglsink", "qmlsink");
 
     g_object_set (sinkBin, "sink", m_qml, nullptr);
@@ -20,8 +21,8 @@ DisplayBin::DisplayBin(QObject *parent) : QObject(parent)
     g_object_set( m_qml, "sync", false, nullptr );
     g_object_set( sinkBin, "sync", false, nullptr );
 
-    gst_bin_add_many (bin, convert, sinkBin, nullptr);
-    if( !gst_element_link (convert, sinkBin ) ){
+    gst_bin_add_many (bin, convert, videoRotate, sinkBin, nullptr);
+    if( !gst_element_link_many (convert, videoRotate, sinkBin, nullptr ) ){
         LOG4CXX_ERROR( logger, "convert->sink" );
     }
 
@@ -45,4 +46,14 @@ void DisplayBin::linkToQQuickWidget(QQuickWidget *widget){
     g_object_set( m_qml,
                   "widget", quickRoot->findChild<QQuickItem*>( "videoItem" ),
                   nullptr );
+}
+
+void DisplayBin::setRotation(int rotation){
+    GstElement* rotate = gst_bin_get_by_name( GST_BIN( m_bin ), "rotate" );
+    if( !rotate ){
+        LOG4CXX_ERROR( logger, "Unable to get rotate from pipeline" );
+        return;
+    }
+
+    g_object_set( G_OBJECT(rotate), "video-direction", rotation, nullptr );
 }

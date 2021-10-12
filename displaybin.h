@@ -13,6 +13,7 @@ public:
     ~DisplayBin();
 
     GstElement* bin();
+    void setRotation( int rotation );
 
     void linkToQQuickWidget( QQuickWidget* widget );
 

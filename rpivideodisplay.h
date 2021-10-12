@@ -24,6 +24,7 @@ Q_SIGNALS:
 public Q_SLOTS:
     void play();
     void stop();
+    void checkRotation();
 
 private:
     RPIVideoSender* m_videoSender;

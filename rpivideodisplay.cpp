@@ -81,6 +81,8 @@ RPIVideoDisplay::RPIVideoDisplay(RPIVideoSender* vidsend,
 
     m_displayBin = new DisplayBin();
 
+    checkRotation();
+
     m_displayBin->linkToQQuickWidget( m_videoWidget );
 
     m_pipeline = gst_pipeline_new ("foopipeline");
@@ -126,4 +128,14 @@ QQuickWidget* RPIVideoDisplay::widget() const{
 
 int RPIVideoDisplay::videoId() const{
     return m_videoSender->videoId();
+}
+
+void RPIVideoDisplay::checkRotation(){
+    if( m_videoSender->lastValidInfo() ){
+        int rotation = m_videoSender->lastValidInfo()->configuration().videoSettings().rotation();
+        LOG4CXX_DEBUG( logger, "Setting rotation to " << rotation );
+        m_displayBin->setRotation( rotation );
+    }else{
+        QTimer::singleShot( 500, this, &RPIVideoDisplay::checkRotation );
+    }
 }
