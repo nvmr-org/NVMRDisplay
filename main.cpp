@@ -1,59 +1,61 @@
-#include "nvmrdisplay.h"
-#include <QApplication>
-#include <QStandardPaths>
-#include <QDir>
-#include <QSettings>
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QDebug>
+#include <QNetworkInterface>
+#include <QQmlApplicationEngine>
+#include <QtGlobal>
+#ifndef Q_OS_ANDROID
+#include <qtwebengineglobal.h>
+#endif
 #include <QTimer>
+#include "videodiscover.h"
 
-#include <log4cxx/logger.h>
-#include <log4cxx/xml/domconfigurator.h>
+static QQmlApplicationEngine* local_engine;
 
-#include <gst/gst.h>
-
-#include "avahibrowse.h"
-
-static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.nvmrdisplaymain" );
-
-static void initialize_logging(){
-    QString configLocation =
-                QStandardPaths::standardLocations( QStandardPaths::AppConfigLocation ).first();
-
-    QDir d( configLocation );
-    if( !d.exists() ){
-        d.mkpath( "." );
+static void printObjectsAndChildren( QObject* inObj ){
+    qDebug() << "In obj name: " << inObj->objectName();
+    for( QObject* obj : inObj->children() ){
+        qDebug() << "Name: " << obj->objectName();
     }
-
-    QString logconfigFile = configLocation + "/logconfig.xml";
-    log4cxx::xml::DOMConfigurator::configure( logconfigFile.toStdString() );
 }
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    a.setOrganizationName( "NVMR" );
+#ifndef Q_OS_ANDROID
+    QtWebEngine::initialize();
+#endif /* Q_OS_ANDROID */
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+#endif
 
-    initialize_logging();
+    QGuiApplication app(argc, argv);
 
-    LOG4CXX_INFO( logger, "NVMR Display starting up" );
+    qmlRegisterType<VideoDiscover>("org.nvmr.videodisplay", 1, 0, "VideoDiscover");
 
-    gst_init( nullptr, nullptr );
+    VideoDiscover vidDiscover;
+    QQmlApplicationEngine engine;
+    local_engine = &engine;
+    QQmlContext *context = engine.rootContext();
+    context->setContextProperty(QStringLiteral("initialUrl"),
+                                "http://example.com");
+    context->setContextProperty(QStringLiteral("videoDiscover"), &vidDiscover);
 
-    // Register qmlglsink(needed for reasons)
-    GstElement *sink = gst_element_factory_make ("qmlglsink", NULL);
-    gst_object_unref(sink);
+    const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
+    QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
+                     &app, [url](QObject *obj, const QUrl &objUrl) {
+        if (!obj && url == objUrl)
+            QCoreApplication::exit(-1);
+        qDebug() << "Object created: " << objUrl;
+//        QTimer::singleShot( 100, startedUp );
+    }, Qt::QueuedConnection);
+    engine.load(url);
 
-    AvahiBrowse br;
-    QTimer::singleShot( 0, &br, &AvahiBrowse::initialize );
 
-    NVMRDisplay w;
-    w.setAvahiBrowser( &br );
-    {
-        QSettings settings;
-        if( settings.value( "fullscreen", "true" ).toBool() ){
-            w.setWindowState( Qt::WindowFullScreen );
-        }
-    }
-    w.show();
+//    qDebug() << "root objects size: " << engine.rootObjects().size();
+//    for( QObject* obj : engine.rootObjects() ){
+//        printObjectsAndChildren( obj );
+//    }
 
-    return a.exec();
+    return app.exec();
 }
