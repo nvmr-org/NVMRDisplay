@@ -6,7 +6,6 @@
 #include <QTimer>
 #include <memory>
 
-#include "rpisourcebin.h"
 #include "nvmr-json/videosendermessage.h"
 
 class RPIVideoSender : public QObject
@@ -17,7 +16,6 @@ public:
 
     bool isValid() const;
 
-    VideoSource* getVideoSource();
     QString name() const;
     int videoId() const;
     const std::shared_ptr<const VideoSenderMessage> lastValidInfo() const;
@@ -45,7 +43,6 @@ private:
     QTimer m_reconnectTimer;
     QString m_websocketAddr;
     QString m_ipAddr;
-    RPISourceBin m_videoSource;
     std::shared_ptr<VideoSenderMessage> m_lastValidVideoInfo;
 };
 

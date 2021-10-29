@@ -3,9 +3,9 @@
 
 #include <QJsonDocument>
 
-#include <log4cxx/logger.h>
+//#include <log4cxx/logger.h>
 
-static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.RPIVideoSender" );
+//static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.RPIVideoSender" );
 
 RPIVideoSender::RPIVideoSender( QString name, QString address, int port, QObject* parent ) :
     QObject( parent ),
@@ -31,14 +31,14 @@ bool RPIVideoSender::isValid() const {
 void RPIVideoSender::binaryMessageRx( const QByteArray& binaryMsg ){
     QJsonDocument doc = QJsonDocument::fromJson( binaryMsg );
     if( doc.isNull() ){
-        LOG4CXX_ERROR( logger, "Docment is null!" );
+//        LOG4CXX_ERROR( logger, "Docment is null!" );
         return;
     }
 
-    if( logger->isDebugEnabled() ){
-        std::string debugDoc = doc.toJson().toStdString();
-        LOG4CXX_DEBUG( logger, "Got document: " << debugDoc );
-    }
+//    if( logger->isDebugEnabled() ){
+//        std::string debugDoc = doc.toJson().toStdString();
+//        LOG4CXX_DEBUG( logger, "Got document: " << debugDoc );
+//    }
 
     m_lastValidVideoInfo = std::shared_ptr<VideoSenderMessage>( new VideoSenderMessage( doc.object() ) );
 //    m_videoSource.setPort( m_lastValidVideoInfo->configuration().networkSettings().udpPort() );
@@ -57,7 +57,7 @@ void RPIVideoSender::queryData(){
 }
 
 void RPIVideoSender::websocketError( QAbstractSocket::SocketError err ){
-    LOG4CXX_ERROR( logger, "Websocket error: " << err );
+//    LOG4CXX_ERROR( logger, "Websocket error: " << err );
     m_videoSender.close();
     m_reconnectTimer.start( 10000 );
 }
@@ -73,10 +73,6 @@ QString RPIVideoSender::name() const {
 int RPIVideoSender::videoId() const {
     if( !m_lastValidVideoInfo ) return -1;
     return m_lastValidVideoInfo->configuration().videoSettings().id();
-}
-
-VideoSource* RPIVideoSender::getVideoSource() {
-    return &m_videoSource;
 }
 
 const std::shared_ptr<const VideoSenderMessage> RPIVideoSender::lastValidInfo() const{
@@ -107,7 +103,7 @@ QString RPIVideoSender::ipAddress() const {
 }
 
 void RPIVideoSender::startStreamingVideo( int portNumber ){
-    LOG4CXX_DEBUG( logger, "Having the RPI stream video to us, port " << portNumber );
+//    LOG4CXX_DEBUG( logger, "Having the RPI stream video to us, port " << portNumber );
 
     VideoSenderMessage vidsendMsg;
     vidsendMsg.setCommand( "send-video" );

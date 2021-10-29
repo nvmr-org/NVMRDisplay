@@ -9,6 +9,7 @@
 #include "avahi-dbus/ServerProxy.h"
 #include "avahi-dbus/ServiceBrowserProxy.h"
 #include "avahi-dbus/ServiceResolverProxy.h"
+
 #include "rpivideosender.h"
 
 class AvahiBrowse : public QObject

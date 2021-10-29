@@ -1,0 +1,3 @@
+[submodule "nvmr-json"]
+	path = nvmr-json
+	url = git@github.com:nvmr-org/nvmr-json.git

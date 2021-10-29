@@ -6,7 +6,7 @@ import org.nvmr.videodisplay 1.0
 //        Video {
 //            id: video1
 //            anchors.fill: parent;
-//            source: "rtsp://192.168.1.182:8900/test"
+//            source: "rtsp://192.168.1.41:8554/test"
 //            autoPlay: true
 
 //            focus: true
