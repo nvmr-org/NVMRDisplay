@@ -53,6 +53,7 @@ if( NOT ANDROID )
         avahibrowse.cpp
         avahibrowse.h)
 elseif( ANDROID )
+    set(ANDROID_PACKAGE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/android CACHE INTERNAL "")
     set(avahi_sources
         avahi-core/addr-util.c
         avahi-core/addr-util.h
