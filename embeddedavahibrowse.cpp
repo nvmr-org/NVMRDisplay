@@ -1,3 +1,5 @@
+#include <QDebug>
+#include <QtEndian>
 #include "embeddedavahibrowse.h"
 #include "avahi-qt/qt-watch.h"
 #include "avahi-common/error.h"
@@ -40,8 +42,11 @@ void EmbeddedAvahiBrowse::initialize(){
                                            &EmbeddedAvahiBrowse::browse_callback,
                                            this))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(m_server)));
+        fflush(stderr);
         goto fail;
     }
+
+    qDebug() << "initialized";
 
 fail:
     return;
@@ -57,6 +62,7 @@ void EmbeddedAvahiBrowse::browse_callback(
         const char *domain,
         AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
         void* userdata){
+    qDebug() << "browse callback event: " << event;
     EmbeddedAvahiBrowse* avahiBrowse = static_cast<EmbeddedAvahiBrowse*>( userdata );
     avahiBrowse->browse_cb( b, interface, protocol, event, name, type, domain, flags );
 }
@@ -75,12 +81,11 @@ void EmbeddedAvahiBrowse::browse_cb(
     switch (event) {
 
         case AVAHI_BROWSER_FAILURE:
-
-            fprintf(stderr, "(Browser) %s\n", avahi_strerror(avahi_server_errno(m_server)));
+            qDebug() << "browser failure: " << avahi_strerror(avahi_server_errno(m_server));
             return;
 
         case AVAHI_BROWSER_NEW:
-            fprintf(stderr, "(Browser) NEW: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+        qDebug() << "new serivce " << name << " of type " << type << " in domain " << domain;
 
             /* We ignore the returned resolver object. In the callback
                function we free it. If the server is terminated before
@@ -103,11 +108,12 @@ void EmbeddedAvahiBrowse::browse_cb(
 
         case AVAHI_BROWSER_REMOVE:
             fprintf(stderr, "(Browser) REMOVE: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+            fflush(stderr);
             break;
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
         case AVAHI_BROWSER_CACHE_EXHAUSTED:
-            fprintf(stderr, "(Browser) %s\n", event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
+            qDebug() <<  "(Browser) " << (event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
             break;
     }
 }
@@ -144,6 +150,13 @@ void EmbeddedAvahiBrowse::resolve_cb(
     AvahiStringList *txt,
         AvahiLookupResultFlags flags){
     /* Called whenever a service has been resolved successfully or timed out */
+    QStringList qTxt;
+    AvahiStringList* current = txt;
+
+    while( current ){
+        qTxt.append( QString::fromLocal8Bit( (const char*)current->text, current->size ) );
+        current = current->next;
+    }
 
     switch (event) {
         case AVAHI_RESOLVER_FAILURE:
@@ -152,28 +165,12 @@ void EmbeddedAvahiBrowse::resolve_cb(
             break;
 
         case AVAHI_RESOLVER_FOUND: {
-            char a[AVAHI_ADDRESS_STR_MAX], *t;
-
-            fprintf(stderr, "(Resolver) Service '%s' of type '%s' in domain '%s':\n", name, type, domain);
-
-//                avahi_address_snprint(a, sizeof(a), address);
-//                t = avahi_string_list_to_string(txt);
-//                fprintf(stderr,
-//                        "\t%s:%u (%s)\n"
-//                        "\tTXT=%s\n"
-//                        "\tcookie is %u\n"
-//                        "\tis_local: %i\n"
-//                        "\twide_area: %i\n"
-//                        "\tmulticast: %i\n"
-//                        "\tcached: %i\n",
-//                        host_name, port, a,
-//                        t,
-//                        avahi_string_list_get_service_cookie(txt),
-//                        !!(flags & AVAHI_LOOKUP_RESULT_LOCAL),
-//                        !!(flags & AVAHI_LOOKUP_RESULT_WIDE_AREA),
-//                        !!(flags & AVAHI_LOOKUP_RESULT_MULTICAST),
-//                        !!(flags & AVAHI_LOOKUP_RESULT_CACHED));
-//                avahi_free(t);
+            qDebug() << "service " << name << " found at address " << host_name << " type " << type;
+            for( const QString& str : qTxt ){
+                if( str == "jmri" ){
+                    emit jmriWebserverFound( QHostAddress( qFromBigEndian( address->data.ipv4.address ) ), port );
+                }
+            }
         }
     }
 

@@ -10,6 +10,7 @@
 #endif
 #include <QTimer>
 #include "videodiscover.h"
+#include "embeddedavahibrowse.h"
 
 static QQmlApplicationEngine* local_engine;
 
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
     local_engine = &engine;
     QQmlContext *context = engine.rootContext();
     context->setContextProperty(QStringLiteral("initialUrl"),
-                                "http://example.com");
+                                "http://192.168.0.10:12080/panel/Panel/Spencer");
     context->setContextProperty(QStringLiteral("videoDiscover"), &vidDiscover);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
@@ -51,6 +52,8 @@ int main(int argc, char *argv[])
     }, Qt::QueuedConnection);
     engine.load(url);
 
+    EmbeddedAvahiBrowse emb;
+    QTimer::singleShot( 0, &emb, &EmbeddedAvahiBrowse::initialize );
 
 //    qDebug() << "root objects size: " << engine.rootObjects().size();
 //    for( QObject* obj : engine.rootObjects() ){

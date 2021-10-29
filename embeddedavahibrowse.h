@@ -16,6 +16,7 @@ public:
 signals:
     void rpiVideoSenderFound( RPIVideoSender* sender );
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
+    void jmriWebserverFound( QHostAddress address,  uint16_t port );
 
 public slots:
     void initialize();
