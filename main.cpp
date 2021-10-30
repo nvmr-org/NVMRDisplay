@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
     app.setApplicationName( "VideoDisplay" );
     app.setOrganizationName( "NVMR" );
 
-    qmlRegisterType<VideoDiscover>("org.nvmr.videodisplay", 1, 0, "VideoDiscover");
+    qmlRegisterType<ServiceDiscover>("org.nvmr.videodisplay", 1, 0, "ServiceDiscover");
 
     VideoDiscover vidDiscover;
     std::unique_ptr<ServiceDiscover> sd = createServiceDiscover();
@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
     QFile(":/no-jmri.html").copy(noJMRI);
     context->setContextProperty(QStringLiteral("initialUrl"),
                                 settings.value( "url", "file://" + noJMRI ));
-    context->setContextProperty(QStringLiteral("videoDiscover"), &vidDiscover);
+    context->setContextProperty(QStringLiteral("serviceDiscover"), sd.get() );
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

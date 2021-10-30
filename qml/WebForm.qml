@@ -15,4 +15,12 @@ Page {
 
         url: initialUrl
     }
+
+    Connections {
+        target: serviceDiscover
+
+        function onJmriWebserverFound( addr, port ){
+            console.log( "jmri " + addr + ":" + port )
+        }
+    }
 }

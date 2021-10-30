@@ -55,17 +55,17 @@ Page {
         }
     }
 
-    Connections {
-        target: videoDiscover
-        function onNewVideoFound(bbb){
-            console.log( "new video! " + bbb )
+//    Connections {
+//        target: videoDiscover
+//        function onNewVideoFound(bbb){
+//            console.log( "new video! " + bbb )
 
-            var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
-            var video = component.createObject(otherVideos);
-            video.text = bbb
+//            var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
+//            var video = component.createObject(otherVideos);
+//            video.text = bbb
 
-            video.onVideoClicked.connect(videoClicked)
-        }
-    }
+//            video.onVideoClicked.connect(videoClicked)
+//        }
+//    }
 
 }
