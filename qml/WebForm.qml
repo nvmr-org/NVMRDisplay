@@ -6,6 +6,7 @@ Page {
     width: 600
     height: 400
 
+    property bool webInitialized : false;
 
     WebView {
         id: webView
@@ -19,8 +20,12 @@ Page {
     Connections {
         target: serviceDiscover
 
-        function onJmriWebserverFound( addr, port ){
-            console.log( "jmri " + addr + ":" + port )
+        function onJmriWebserverFound( url ){
+            if( webInitialized ) return;
+
+            console.log( "Setting webview to load " + url )
+            webView.url = url
+            webInitialized = true
         }
     }
 }

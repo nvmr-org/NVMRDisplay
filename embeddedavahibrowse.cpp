@@ -165,10 +165,15 @@ void EmbeddedAvahiBrowse::resolve_cb(
             break;
 
         case AVAHI_RESOLVER_FOUND: {
+            if( address->proto == AVAHI_PROTO_INET6 ) break;
+
             qDebug() << "service " << name << " found at address " << host_name << " type " << type;
             for( const QString& str : qTxt ){
-                if( str == "jmri" ){
-                    emit jmriWebserverFound( QHostAddress( qFromBigEndian( address->data.ipv4.address ) ), port );
+                if( str.startsWith( "jmri" ) ){
+                    QUrl url = "http://" +
+                            QHostAddress( qFromBigEndian( address->data.ipv4.address ) ).toString()
+                            + ":" + QString::number( port );
+                    emit jmriWebserverFound( url );
                 }
             }
         }

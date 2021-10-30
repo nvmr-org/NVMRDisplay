@@ -2,7 +2,7 @@
 #define SERVICEDISCOVER_H
 
 #include <QObject>
-#include <QHostAddress>
+#include <QUrl>
 
 #include "rpivideosender.h"
 
@@ -15,7 +15,7 @@ public:
 signals:
     void rpiVideoSenderFound( RPIVideoSender* sender );
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
-    void jmriWebserverFound( QHostAddress address,  uint16_t port );
+    void jmriWebserverFound( QUrl url );
 
 };
 
