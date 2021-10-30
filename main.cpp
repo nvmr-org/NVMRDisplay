@@ -11,7 +11,6 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
-#include "videodiscover.h"
 
 #ifndef Q_OS_ANDROID
 #include <qtwebengineglobal.h>
@@ -47,7 +46,6 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<ServiceDiscover>("org.nvmr.videodisplay", 1, 0, "ServiceDiscover");
 
-    VideoDiscover vidDiscover;
     std::unique_ptr<ServiceDiscover> sd = createServiceDiscover();
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();

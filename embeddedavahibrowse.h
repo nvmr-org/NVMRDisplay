@@ -18,7 +18,7 @@ public slots:
     void initialize();
 
 private:
-    static void browse_callback(
+    static void jmri_browse_callback(
         AvahiSServiceBrowser *b,
         AvahiIfIndex interface,
         AvahiProtocol protocol,
@@ -28,7 +28,7 @@ private:
         const char *domain,
         AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
         void* userdata);
-    void browse_cb(
+    void jmri_browse_cb(
             AvahiSServiceBrowser *b,
             AvahiIfIndex interface,
             AvahiProtocol protocol,
@@ -37,8 +37,7 @@ private:
             const char *type,
             const char *domain,
             AVAHI_GCC_UNUSED AvahiLookupResultFlags flags);
-
-    static void resolve_callback(
+    static void jmri_resolve_callback(
             AvahiSServiceResolver *r,
             AVAHI_GCC_UNUSED AvahiIfIndex interface,
             AVAHI_GCC_UNUSED AvahiProtocol protocol,
@@ -52,7 +51,54 @@ private:
             AvahiStringList *txt,
             AvahiLookupResultFlags flags,
             void* userdata);
-    void resolve_cb(
+    void jmri_resolve_cb(
+        AvahiSServiceResolver *r,
+        AVAHI_GCC_UNUSED AvahiIfIndex interface,
+        AVAHI_GCC_UNUSED AvahiProtocol protocol,
+        AvahiResolverEvent event,
+        const char *name,
+        const char *type,
+        const char *domain,
+        const char *host_name,
+        const AvahiAddress *address,
+        uint16_t port,
+        AvahiStringList *txt,
+        AvahiLookupResultFlags flags);
+
+    static void videosender_browse_callback(
+        AvahiSServiceBrowser *b,
+        AvahiIfIndex interface,
+        AvahiProtocol protocol,
+        AvahiBrowserEvent event,
+        const char *name,
+        const char *type,
+        const char *domain,
+        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+        void* userdata);
+    void videosender_browse_cb(
+            AvahiSServiceBrowser *b,
+            AvahiIfIndex interface,
+            AvahiProtocol protocol,
+            AvahiBrowserEvent event,
+            const char *name,
+            const char *type,
+            const char *domain,
+            AVAHI_GCC_UNUSED AvahiLookupResultFlags flags);
+    static void videosender_resolve_callback(
+            AvahiSServiceResolver *r,
+            AVAHI_GCC_UNUSED AvahiIfIndex interface,
+            AVAHI_GCC_UNUSED AvahiProtocol protocol,
+            AvahiResolverEvent event,
+            const char *name,
+            const char *type,
+            const char *domain,
+            const char *host_name,
+            const AvahiAddress *address,
+            uint16_t port,
+            AvahiStringList *txt,
+            AvahiLookupResultFlags flags,
+            void* userdata);
+    void videosender_resolve_cb(
         AvahiSServiceResolver *r,
         AVAHI_GCC_UNUSED AvahiIfIndex interface,
         AVAHI_GCC_UNUSED AvahiProtocol protocol,
@@ -68,7 +114,8 @@ private:
 
 private:
     AvahiServer* m_server;
-    AvahiSServiceBrowser* m_serviceBrowse;
+    AvahiSServiceBrowser* m_jmriBrowse;
+    AvahiSServiceBrowser* m_videoSenderBrowse;
 };
 
 #endif // EMBEDDEDAVAHIBROWSE_H

@@ -33,18 +33,32 @@ void EmbeddedAvahiBrowse::initialize(){
     }
 
     /* Create the service browser */
-    if (!(m_serviceBrowse = avahi_s_service_browser_new(m_server,
+    if (!(m_jmriBrowse = avahi_s_service_browser_new(m_server,
                                            AVAHI_IF_UNSPEC,
-                                           AVAHI_PROTO_UNSPEC,
+                                           AVAHI_PROTO_INET,
                                            "_http._tcp",
                                            NULL,
                                            (AvahiLookupFlags)0,
-                                           &EmbeddedAvahiBrowse::browse_callback,
+                                           &EmbeddedAvahiBrowse::jmri_browse_callback,
                                            this))) {
         fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(m_server)));
         fflush(stderr);
         goto fail;
     }
+
+    if (!(m_videoSenderBrowse = avahi_s_service_browser_new(m_server,
+                                           AVAHI_IF_UNSPEC,
+                                           AVAHI_PROTO_INET,
+                                           "_nvmr_video_sender._tcp",
+                                           NULL,
+                                           (AvahiLookupFlags)0,
+                                           &EmbeddedAvahiBrowse::videosender_browse_callback,
+                                           this))) {
+        fprintf(stderr, "Failed to create service browser: %s\n", avahi_strerror(avahi_server_errno(m_server)));
+        fflush(stderr);
+        goto fail;
+    }
+
 
     qDebug() << "initialized";
 
@@ -52,7 +66,7 @@ fail:
     return;
 }
 
-void EmbeddedAvahiBrowse::browse_callback(
+void EmbeddedAvahiBrowse::jmri_browse_callback(
         AvahiSServiceBrowser *b,
         AvahiIfIndex interface,
         AvahiProtocol protocol,
@@ -64,10 +78,10 @@ void EmbeddedAvahiBrowse::browse_callback(
         void* userdata){
     qDebug() << "browse callback event: " << event;
     EmbeddedAvahiBrowse* avahiBrowse = static_cast<EmbeddedAvahiBrowse*>( userdata );
-    avahiBrowse->browse_cb( b, interface, protocol, event, name, type, domain, flags );
+    avahiBrowse->jmri_browse_cb( b, interface, protocol, event, name, type, domain, flags );
 }
 
-void EmbeddedAvahiBrowse::browse_cb(
+void EmbeddedAvahiBrowse::jmri_browse_cb(
         AvahiSServiceBrowser *b,
         AvahiIfIndex interface,
         AvahiProtocol protocol,
@@ -100,7 +114,7 @@ void EmbeddedAvahiBrowse::browse_cb(
                                                domain,
                                                AVAHI_PROTO_UNSPEC,
                                                (AvahiLookupFlags)0,
-                                               &EmbeddedAvahiBrowse::resolve_callback,
+                                               &EmbeddedAvahiBrowse::jmri_resolve_callback,
                                                this)))
                 fprintf(stderr, "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_server_errno(m_server)));
 
@@ -118,7 +132,7 @@ void EmbeddedAvahiBrowse::browse_cb(
     }
 }
 
-void EmbeddedAvahiBrowse::resolve_callback(
+void EmbeddedAvahiBrowse::jmri_resolve_callback(
             AvahiSServiceResolver *r,
             AVAHI_GCC_UNUSED AvahiIfIndex interface,
             AVAHI_GCC_UNUSED AvahiProtocol protocol,
@@ -133,10 +147,10 @@ void EmbeddedAvahiBrowse::resolve_callback(
             AvahiLookupResultFlags flags,
         void* userdata){
     EmbeddedAvahiBrowse* avahiBrowse = static_cast<EmbeddedAvahiBrowse*>( userdata );
-    avahiBrowse->resolve_cb( r, interface, protocol, event, name, type, domain, host_name, address, port, txt, flags );
+    avahiBrowse->jmri_resolve_cb( r, interface, protocol, event, name, type, domain, host_name, address, port, txt, flags );
 }
 
-void EmbeddedAvahiBrowse::resolve_cb(
+void EmbeddedAvahiBrowse::jmri_resolve_cb(
     AvahiSServiceResolver *r,
     AVAHI_GCC_UNUSED AvahiIfIndex interface,
     AVAHI_GCC_UNUSED AvahiProtocol protocol,
@@ -175,6 +189,138 @@ void EmbeddedAvahiBrowse::resolve_cb(
                             + ":" + QString::number( port );
                     emit jmriWebserverFound( url );
                 }
+            }
+        }
+    }
+
+    avahi_s_service_resolver_free(r);
+}
+
+void EmbeddedAvahiBrowse::videosender_browse_callback(
+        AvahiSServiceBrowser *b,
+        AvahiIfIndex interface,
+        AvahiProtocol protocol,
+        AvahiBrowserEvent event,
+        const char *name,
+        const char *type,
+        const char *domain,
+        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags,
+        void* userdata){
+    qDebug() << "browse callback event: " << event;
+    EmbeddedAvahiBrowse* avahiBrowse = static_cast<EmbeddedAvahiBrowse*>( userdata );
+    avahiBrowse->videosender_browse_cb( b, interface, protocol, event, name, type, domain, flags );
+}
+
+void EmbeddedAvahiBrowse::videosender_browse_cb(
+        AvahiSServiceBrowser *b,
+        AvahiIfIndex interface,
+        AvahiProtocol protocol,
+        AvahiBrowserEvent event,
+        const char *name,
+        const char *type,
+        const char *domain,
+        AVAHI_GCC_UNUSED AvahiLookupResultFlags flags){
+    /* Called whenever a new services becomes available on the LAN or is removed from the LAN */
+
+    switch (event) {
+
+        case AVAHI_BROWSER_FAILURE:
+            qDebug() << "browser failure: " << avahi_strerror(avahi_server_errno(m_server));
+            return;
+
+        case AVAHI_BROWSER_NEW:
+        qDebug() << "new serivce " << name << " of type " << type << " in domain " << domain;
+
+            /* We ignore the returned resolver object. In the callback
+               function we free it. If the server is terminated before
+               the callback function is called the server will free
+               the resolver for us. */
+
+            if (!(avahi_s_service_resolver_new(m_server,
+                                               interface,
+                                               protocol,
+                                               name,
+                                               type,
+                                               domain,
+                                               AVAHI_PROTO_UNSPEC,
+                                               (AvahiLookupFlags)0,
+                                               &EmbeddedAvahiBrowse::videosender_resolve_callback,
+                                               this)))
+                fprintf(stderr, "Failed to resolve service '%s': %s\n", name, avahi_strerror(avahi_server_errno(m_server)));
+
+            break;
+
+        case AVAHI_BROWSER_REMOVE:
+            fprintf(stderr, "(Browser) REMOVE: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
+            fflush(stderr);
+            break;
+
+        case AVAHI_BROWSER_ALL_FOR_NOW:
+        case AVAHI_BROWSER_CACHE_EXHAUSTED:
+            qDebug() <<  "(Browser) " << (event == AVAHI_BROWSER_CACHE_EXHAUSTED ? "CACHE_EXHAUSTED" : "ALL_FOR_NOW");
+            break;
+    }
+}
+
+void EmbeddedAvahiBrowse::videosender_resolve_callback(
+            AvahiSServiceResolver *r,
+            AVAHI_GCC_UNUSED AvahiIfIndex interface,
+            AVAHI_GCC_UNUSED AvahiProtocol protocol,
+            AvahiResolverEvent event,
+            const char *name,
+            const char *type,
+            const char *domain,
+            const char *host_name,
+            const AvahiAddress *address,
+            uint16_t port,
+            AvahiStringList *txt,
+            AvahiLookupResultFlags flags,
+        void* userdata){
+    EmbeddedAvahiBrowse* avahiBrowse = static_cast<EmbeddedAvahiBrowse*>( userdata );
+    avahiBrowse->videosender_resolve_cb( r, interface, protocol, event, name, type, domain, host_name, address, port, txt, flags );
+}
+
+void EmbeddedAvahiBrowse::videosender_resolve_cb(
+    AvahiSServiceResolver *r,
+    AVAHI_GCC_UNUSED AvahiIfIndex interface,
+    AVAHI_GCC_UNUSED AvahiProtocol protocol,
+    AvahiResolverEvent event,
+    const char *name,
+    const char *type,
+    const char *domain,
+    const char *host_name,
+    const AvahiAddress *address,
+    uint16_t port,
+    AvahiStringList *txt,
+        AvahiLookupResultFlags flags){
+    /* Called whenever a service has been resolved successfully or timed out */
+    QStringList qTxt;
+    AvahiStringList* current = txt;
+
+    while( current ){
+        qTxt.append( QString::fromLocal8Bit( (const char*)current->text, current->size ) );
+        current = current->next;
+    }
+
+    switch (event) {
+        case AVAHI_RESOLVER_FAILURE:
+            fprintf(stderr, "(Resolver) Failed to resolve service '%s' of type '%s' in domain '%s': %s\n",
+                    name, type, domain, avahi_strerror(avahi_server_errno(m_server)));
+            break;
+
+        case AVAHI_RESOLVER_FOUND: {
+            if( address->proto == AVAHI_PROTO_INET6 ) break;
+
+            QHostAddress hostAddress = QHostAddress( qFromBigEndian( address->data.ipv4.address ) );
+            qDebug() << "service " << name << " found at address " << host_name << " type " << type;
+            RPIVideoSender* sender = new RPIVideoSender( QString::fromStdString( name ),
+                                                         hostAddress.toString(),
+                                                         port,
+                                                         this );
+//                m_resolvedVideoSenders.push_back( sender );
+            Q_EMIT rpiVideoSenderFound( sender );
+            Q_EMIT rpiVideoSenderRtspFound( "rtsp://" + hostAddress.toString() + ":8554/rpi-video" );
+            for( const QString& str : qTxt ){
             }
         }
     }

@@ -55,17 +55,18 @@ Page {
         }
     }
 
-//    Connections {
-//        target: videoDiscover
-//        function onNewVideoFound(bbb){
-//            console.log( "new video! " + bbb )
+    Connections {
+        target: serviceDiscover
+        function onRpiVideoSenderRtspFound( url ){
+            console.log( "new video! " + url )
 
-//            var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
-//            var video = component.createObject(otherVideos);
+            var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
+            var video = component.createObject(otherVideos);
 //            video.text = bbb
+            video.videoSource = url
 
-//            video.onVideoClicked.connect(videoClicked)
-//        }
-//    }
+            video.onVideoClicked.connect(videoClicked)
+        }
+    }
 
 }

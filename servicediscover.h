@@ -16,7 +16,7 @@ signals:
     void rpiVideoSenderFound( RPIVideoSender* sender );
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
     void jmriWebserverFound( QUrl url );
-
+    void rpiVideoSenderRtspFound( QUrl url );
 };
 
 #endif // SERVICEDISCOVER_H
