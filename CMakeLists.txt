@@ -167,8 +167,6 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS ${qt_components} REQUIRED)
 
 set(PROJECT_SOURCES
         main.cpp
-        videodiscover.cpp
-        videodiscover.h
         rpivideosender.cpp
         rpivideosender.h
         servicediscover.h
