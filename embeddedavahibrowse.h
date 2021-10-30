@@ -6,17 +6,13 @@
 #include "rpivideosender.h"
 #include "avahi-core/core.h"
 #include "avahi-core/lookup.h"
+#include "servicediscover.h"
 
-class EmbeddedAvahiBrowse : public QObject
+class EmbeddedAvahiBrowse : public ServiceDiscover
 {
     Q_OBJECT
 public:
     explicit EmbeddedAvahiBrowse(QObject *parent = nullptr);
-
-signals:
-    void rpiVideoSenderFound( RPIVideoSender* sender );
-    void rpiVideoSenderWentAway( RPIVideoSender* sender );
-    void jmriWebserverFound( QHostAddress address,  uint16_t port );
 
 public slots:
     void initialize();

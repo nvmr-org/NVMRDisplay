@@ -5,20 +5,31 @@
 #include <QNetworkInterface>
 #include <QQmlApplicationEngine>
 #include <QtGlobal>
+#include <QTimer>
+#include <memory>
+#include <QSettings>
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
+#include "videodiscover.h"
+
 #ifndef Q_OS_ANDROID
 #include <qtwebengineglobal.h>
-#endif
-#include <QTimer>
-#include "videodiscover.h"
+#else
 #include "embeddedavahibrowse.h"
-
-static QQmlApplicationEngine* local_engine;
+#endif
 
 static void printObjectsAndChildren( QObject* inObj ){
     qDebug() << "In obj name: " << inObj->objectName();
     for( QObject* obj : inObj->children() ){
         qDebug() << "Name: " << obj->objectName();
     }
+}
+
+static std::unique_ptr<ServiceDiscover> createServiceDiscover(){
+#ifdef Q_OS_ANDROID
+    return std::make_unique<EmbeddedAvahiBrowse>();
+#endif
 }
 
 int main(int argc, char *argv[])
@@ -31,15 +42,23 @@ int main(int argc, char *argv[])
 #endif
 
     QGuiApplication app(argc, argv);
+    app.setApplicationName( "VideoDisplay" );
+    app.setOrganizationName( "NVMR" );
 
     qmlRegisterType<VideoDiscover>("org.nvmr.videodisplay", 1, 0, "VideoDiscover");
 
     VideoDiscover vidDiscover;
+    std::unique_ptr<ServiceDiscover> sd = createServiceDiscover();
     QQmlApplicationEngine engine;
-    local_engine = &engine;
     QQmlContext *context = engine.rootContext();
+    QSettings settings;
+
+    QString noJMRI = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
+    noJMRI.append(QDir::separator());
+    noJMRI.append("no-jmri.html");
+    QFile(":/no-jmri.html").copy(noJMRI);
     context->setContextProperty(QStringLiteral("initialUrl"),
-                                "http://192.168.0.10:12080/panel/Panel/Spencer");
+                                settings.value( "url", "file://" + noJMRI ));
     context->setContextProperty(QStringLiteral("videoDiscover"), &vidDiscover);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
@@ -48,17 +67,8 @@ int main(int argc, char *argv[])
         if (!obj && url == objUrl)
             QCoreApplication::exit(-1);
         qDebug() << "Object created: " << objUrl;
-//        QTimer::singleShot( 100, startedUp );
     }, Qt::QueuedConnection);
     engine.load(url);
-
-    EmbeddedAvahiBrowse emb;
-    QTimer::singleShot( 0, &emb, &EmbeddedAvahiBrowse::initialize );
-
-//    qDebug() << "root objects size: " << engine.rootObjects().size();
-//    for( QObject* obj : engine.rootObjects() ){
-//        printObjectsAndChildren( obj );
-//    }
 
     return app.exec();
 }

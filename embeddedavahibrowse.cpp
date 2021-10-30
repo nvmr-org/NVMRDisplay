@@ -4,9 +4,9 @@
 #include "avahi-qt/qt-watch.h"
 #include "avahi-common/error.h"
 
-EmbeddedAvahiBrowse::EmbeddedAvahiBrowse(QObject *parent) : QObject(parent)
+EmbeddedAvahiBrowse::EmbeddedAvahiBrowse(QObject *parent) : ServiceDiscover(parent)
 {
-
+    QTimer::singleShot( 0, this, &EmbeddedAvahiBrowse::initialize );
 }
 
 void EmbeddedAvahiBrowse::initialize(){
