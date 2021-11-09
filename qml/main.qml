@@ -5,7 +5,7 @@ ApplicationWindow {
     width: 640
     height: 480
     visible: true
-    title: qsTr("Tabs")
+    title: qsTr("NVMR Video Display")
     visibility: "FullScreen"
     id: mainWindow
 
@@ -19,6 +19,10 @@ ApplicationWindow {
             id: webPage
         }
 
+        WebForm {
+            id: webPage2
+        }
+
         VideoForm {
             id: videoPage
         }
@@ -29,7 +33,10 @@ ApplicationWindow {
         currentIndex: swipeView.currentIndex
 
         TabButton {
-            text: qsTr("Panel")
+            text: qsTr("Panel 1")
+        }
+        TabButton {
+            text: qsTr("Panel 2")
         }
         TabButton {
             text: qsTr("Video")
