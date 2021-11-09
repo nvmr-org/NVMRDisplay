@@ -22,16 +22,26 @@ Page {
         spacing: 2
         Rectangle {
             id: mainVideo
-            color: "red"
+            color: "#000000"
             width: parent.width * .8
             height: parent.height
         }
         Rectangle {
-            color: "green"
+            id: allVideos
+            color: "#c2c2c2"
             width: parent.width * .2
             height: parent.height
             Column {
                 id: otherVideos
+                width: parent.width
+                Text{
+                    text: "All Videos"
+                    width: parent.width
+                    horizontalAlignment: Text.AlignHCenter
+                    font.underline: true
+                    fontSizeMode: Text.HorizontalFit
+                    font.pointSize: 52
+                }
             }
         }
     }
