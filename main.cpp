@@ -14,6 +14,8 @@
 
 #ifndef Q_OS_ANDROID
 #include <qtwebengineglobal.h>
+#include "avahibrowse.h"
+#include <log4cxx/xml/domconfigurator.h>
 #else
 #include "embeddedavahibrowse.h"
 #endif
@@ -28,6 +30,14 @@ static void printObjectsAndChildren( QObject* inObj ){
 static std::unique_ptr<ServiceDiscover> createServiceDiscover(){
 #ifdef Q_OS_ANDROID
     return std::make_unique<EmbeddedAvahiBrowse>();
+#else
+    return std::make_unique<AvahiBrowse>();
+#endif
+}
+
+static void init_logging(){
+#ifndef Q_OS_ANDROID
+    log4cxx::xml::DOMConfigurator::configure( "logconfig.xml" );
 #endif
 }
 
@@ -39,6 +49,7 @@ int main(int argc, char *argv[])
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
+    init_logging();
 
     QGuiApplication app(argc, argv);
     app.setApplicationName( "VideoDisplay" );

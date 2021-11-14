@@ -7,10 +7,11 @@
 
 static log4cxx::LoggerPtr logger = log4cxx::Logger::getLogger( "org.nvmr.AvahiBrowse" );
 
-AvahiBrowse::AvahiBrowse(QObject *parent) : QObject(parent)
+AvahiBrowse::AvahiBrowse(QObject *parent) : ServiceDiscover(parent)
 {
     m_dispatcher = DBus::Qt::QtDispatcher::create();
     m_conn = m_dispatcher->create_connection( DBus::BusType::SYSTEM );
+    QTimer::singleShot( 0, this, &AvahiBrowse::initialize );
 }
 
 void AvahiBrowse::initialize(){
@@ -131,6 +132,8 @@ void AvahiBrowse::resolvedFound(int32_t interface,
     RPIVideoSender* sender = new RPIVideoSender( QString::fromStdString( name ), QString::fromStdString( address ), port, this );
     m_resolvedVideoSenders.push_back( sender );
     Q_EMIT rpiVideoSenderFound( sender );
+
+    Q_EMIT rpiVideoSenderRtspFound( QString("rtsp://%1:8554/rpi-video").arg(address.c_str()) );
 
 //    VideoSender newVideoSender;
 //    newVideoSender.name = QString::fromStdString( name );

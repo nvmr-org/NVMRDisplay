@@ -10,6 +10,7 @@ set(CMAKE_AUTORCC ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 
 # QtCreator supports the following variables for Android, which are identical to qmake Android variables.
 # Check https://doc.qt.io/qt/deployment-android.html for more information.
@@ -51,7 +52,21 @@ if( NOT ANDROID )
     set( qt_components ${qt_components} WebEngine)
     set(avahi_sources
         avahibrowse.cpp
-        avahibrowse.h)
+        avahibrowse.h
+        avahi-dbus/org_freedesktop_Avahi_Server2Proxy.cpp
+        avahi-dbus/org_freedesktop_Avahi_ServerProxy.cpp
+        avahi-dbus/org_freedesktop_Avahi_ServiceBrowserProxy.cpp
+        avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.cpp
+        avahi-dbus/ServerProxy.cpp
+        avahi-dbus/ServiceBrowserProxy.cpp
+        avahi-dbus/ServiceResolverProxy.cpp
+        avahi-dbus/org_freedesktop_Avahi_Server2Proxy.h
+        avahi-dbus/org_freedesktop_Avahi_ServerProxy.h
+        avahi-dbus/org_freedesktop_Avahi_ServiceBrowserProxy.h
+        avahi-dbus/org_freedesktop_Avahi_ServiceResolverProxy.h
+        avahi-dbus/ServerProxy.h
+        avahi-dbus/ServiceBrowserProxy.h
+        avahi-dbus/ServiceResolverProxy.h)
 elseif( ANDROID )
     set(ANDROID_PACKAGE_SOURCE_DIR ${PROJECT_SOURCE_DIR}/android CACHE INTERNAL "")
     set(avahi_sources
@@ -202,8 +217,18 @@ target_link_libraries(NVMRDisplay
   Qt${QT_VERSION_MAJOR}::WebSockets)
 
 if( NOT ANDROID )
+    include(FindPkgConfig)
+    pkg_check_modules( nvmr-json REQUIRED nvmr-json )
+    pkg_check_modules( log4cxx REQUIRED liblog4cxx )
+    pkg_check_modules( dbus-cxx REQUIRED dbus-cxx-qt-2.0 )
+    target_include_directories( NVMRDisplay PRIVATE
+        ${nvmr-json_INCLUDE_DIRS}
+        ${dbus-cxx_INCLUDE_DIRS} )
     target_link_libraries(NVMRDisplay
-        PRIVATE Qt${QT_VERSION_MAJOR}::WebEngine)
+        PRIVATE Qt${QT_VERSION_MAJOR}::WebEngine
+        ${nvmr-json_LIBRARIES}
+        ${dbus-cxx_LIBRARIES}
+        ${log4cxx_LIBRARIES} )
 else()
     target_compile_definitions(NVMRDisplay PRIVATE
         HAVE_NETLINK

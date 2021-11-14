@@ -12,7 +12,7 @@ class ServiceDiscover : public QObject
 public:
     explicit ServiceDiscover(QObject *parent = nullptr);
 
-signals:
+Q_SIGNALS:
     void rpiVideoSenderFound( RPIVideoSender* sender );
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
     void jmriWebserverFound( QUrl url );

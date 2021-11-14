@@ -11,16 +11,15 @@
 #include "avahi-dbus/ServiceResolverProxy.h"
 
 #include "rpivideosender.h"
+#include "servicediscover.h"
 
-class AvahiBrowse : public QObject
+class AvahiBrowse : public ServiceDiscover
 {
     Q_OBJECT
 public:
     explicit AvahiBrowse(QObject *parent = nullptr);
 
 Q_SIGNALS:
-    void rpiVideoSenderFound( RPIVideoSender* sender );
-    void rpiVideoSenderWentAway( RPIVideoSender* sender );
 
 public Q_SLOTS:
     void initialize();
