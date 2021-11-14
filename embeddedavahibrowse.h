@@ -14,7 +14,7 @@ class EmbeddedAvahiBrowse : public ServiceDiscover
 public:
     explicit EmbeddedAvahiBrowse(QObject *parent = nullptr);
 
-public slots:
+public Q_SLOTS:
     void initialize();
 
 private:

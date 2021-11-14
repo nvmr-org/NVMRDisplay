@@ -33,7 +33,7 @@ public:
     AvahiWatchEvent getEvents() const { return m_incallback ? m_lastEvent : (AvahiWatchEvent)0; }
     void setWatchedEvents(AvahiWatchEvent event);
 
-private slots:
+private Q_SLOTS:
     void gotIn();
     void gotOut();
 
@@ -57,7 +57,7 @@ public:
     ~AvahiTimeout() {}
     void update(const struct timeval* tv);
     
-private slots:
+private Q_SLOTS:
     void timeout();
     
 private:

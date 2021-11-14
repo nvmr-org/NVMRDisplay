@@ -187,7 +187,7 @@ void EmbeddedAvahiBrowse::jmri_resolve_cb(
                     QUrl url = "http://" +
                             QHostAddress( qFromBigEndian( address->data.ipv4.address ) ).toString()
                             + ":" + QString::number( port );
-                    emit jmriWebserverFound( url );
+                    Q_EMIT jmriWebserverFound( url );
                 }
             }
         }
