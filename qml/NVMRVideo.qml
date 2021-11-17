@@ -16,10 +16,8 @@ Item {
     Video {
         id: video1
         anchors.fill: parent;
-//        source: "rtsp://192.168.1.41:8554/test"
         source: parent.videoSource
         autoPlay: true
-        orientation: 180
 
         focus: true
     }
