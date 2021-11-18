@@ -18,7 +18,7 @@ Item {
         anchors.fill: parent;
         source: parent.videoSource
         autoPlay: true
-
+        playbackRate: 1.5
         focus: true
     }
 
