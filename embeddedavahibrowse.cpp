@@ -164,11 +164,16 @@ void EmbeddedAvahiBrowse::jmri_resolve_cb(
     AvahiStringList *txt,
         AvahiLookupResultFlags flags){
     /* Called whenever a service has been resolved successfully or timed out */
-    QStringList qTxt;
+    std::vector<std::vector<uint8_t>> txtData;
     AvahiStringList* current = txt;
 
     while( current ){
-        qTxt.append( QString::fromLocal8Bit( (const char*)current->text, current->size ) );
+        std::vector<uint8_t> vec;
+        vec.reserve( current->size );
+        for( size_t x = 0; x < current->size; x++ ){
+            vec.push_back( current->text[x] );
+        }
+        txtData.push_back( vec );
         current = current->next;
     }
 
@@ -181,15 +186,12 @@ void EmbeddedAvahiBrowse::jmri_resolve_cb(
         case AVAHI_RESOLVER_FOUND: {
             if( address->proto == AVAHI_PROTO_INET6 ) break;
 
+            QHostAddress hostAddress = QHostAddress( qFromBigEndian( address->data.ipv4.address ) );
             qDebug() << "service " << name << " found at address " << host_name << " type " << type;
-            for( const QString& str : qTxt ){
-                if( str.startsWith( "jmri" ) ){
-                    QUrl url = "http://" +
-                            QHostAddress( qFromBigEndian( address->data.ipv4.address ) ).toString()
-                            + ":" + QString::number( port );
-                    Q_EMIT jmriWebserverFound( url );
-                }
-            }
+            foundHTTPServer( QString(name),
+                             hostAddress.toString(),
+                             port,
+                             txtData );
         }
     }
 
@@ -294,11 +296,16 @@ void EmbeddedAvahiBrowse::videosender_resolve_cb(
     AvahiStringList *txt,
         AvahiLookupResultFlags flags){
     /* Called whenever a service has been resolved successfully or timed out */
-    QStringList qTxt;
+    std::vector<std::vector<uint8_t>> txtData;
     AvahiStringList* current = txt;
 
     while( current ){
-        qTxt.append( QString::fromLocal8Bit( (const char*)current->text, current->size ) );
+        std::vector<uint8_t> vec;
+        vec.reserve( current->size );
+        for( size_t x = 0; x < current->size; x++ ){
+            vec.push_back( current->text[x] );
+        }
+        txtData.push_back( vec );
         current = current->next;
     }
 
@@ -313,15 +320,10 @@ void EmbeddedAvahiBrowse::videosender_resolve_cb(
 
             QHostAddress hostAddress = QHostAddress( qFromBigEndian( address->data.ipv4.address ) );
             qDebug() << "service " << name << " found at address " << host_name << " type " << type;
-            RPIVideoSender* sender = new RPIVideoSender( QString::fromStdString( name ),
-                                                         hostAddress.toString(),
-                                                         port,
-                                                         this );
-//                m_resolvedVideoSenders.push_back( sender );
-            Q_EMIT rpiVideoSenderFound( sender );
-            Q_EMIT rpiVideoSenderRtspFound( "rtsp://" + hostAddress.toString() + ":8554/rpi-video" );
-            for( const QString& str : qTxt ){
-            }
+            foundRPIVideoSender( QString(name),
+                                 hostAddress.toString(),
+                                 port,
+                                 txtData );
         }
     }
 
