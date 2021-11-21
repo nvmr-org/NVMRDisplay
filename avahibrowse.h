@@ -28,10 +28,12 @@ private:
     void signalFailure( std::string str );
     void signalAllForNow();
     void signalCacheExhausted();
-    void signalItemNew(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
-    void signalItemRemoved(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
+    void signalVideoSenderNew(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
+    void signalVideoSenderRemoved(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
+    void signalHTTPNew(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
+    void signalHTTPRemoved(int32_t,int32_t,std::string,std::string,std::string,uint32_t);
 
-    void resolvedFound(int32_t interface,
+    void resolvedVideoSenderFound(int32_t interface,
                int32_t protocol,
                std::string name,
                std::string type,
@@ -42,15 +44,28 @@ private:
                uint16_t port,
                std::vector<std::vector<uint8_t>> txt,
                uint32_t flags);
-    void resolvedError( std::string err );
+    void resolvedVideoSenderError( std::string err );
+
+    void resolvedHTTPFound(int32_t interface,
+               int32_t protocol,
+               std::string name,
+               std::string type,
+               std::string domain,
+               std::string host,
+               int32_t aprotocol,
+               std::string address,
+               uint16_t port,
+               std::vector<std::vector<uint8_t>> txt,
+               uint32_t flags);
+    void resolvedHTTPError( std::string err );
 
 private:
     std::shared_ptr<DBus::Connection> m_conn;
     std::shared_ptr<DBus::Dispatcher> m_dispatcher;
     std::shared_ptr<Avahi::ServerProxy> m_avahiServer;
-    std::shared_ptr<Avahi::ServiceBrowserProxy> m_browserProxy;
+    std::shared_ptr<Avahi::ServiceBrowserProxy> m_browserProxyVideoSender;
+    std::shared_ptr<Avahi::ServiceBrowserProxy> m_browserProxyJMRIHttp;
     QMap<QString,std::shared_ptr<Avahi::ServiceResolverProxy>> m_nameToResolver;
-    QVector<RPIVideoSender*> m_resolvedVideoSenders;
 };
 
 #endif // AVAHIBROWSE_H

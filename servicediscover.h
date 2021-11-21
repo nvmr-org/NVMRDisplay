@@ -17,6 +17,13 @@ Q_SIGNALS:
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
     void jmriWebserverFound( QUrl url );
     void rpiVideoSenderRtspFound( QUrl url );
+
+protected:
+    void foundRPIVideoSender( QString name, QString address, int port, std::vector<std::vector<uint8_t>> txtData );
+    void foundHTTPServer( QString name, QString address, int port, std::vector<std::vector<uint8_t>> txtData );
+
+private:
+    QVector<RPIVideoSender*> m_resolvedVideoSenders;
 };
 
 #endif // SERVICEDISCOVER_H

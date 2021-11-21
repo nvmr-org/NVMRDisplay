@@ -16,6 +16,10 @@
 #include <qtwebengineglobal.h>
 #include "avahibrowse.h"
 #include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/logger.h>
+#include <log4cxx/logmanager.h>
+#include <log4cxx/spi/location/locationinfo.h>
+#include <dbus-cxx/utility.h>
 #else
 #include "embeddedavahibrowse.h"
 #endif
@@ -35,9 +39,44 @@ static std::unique_ptr<ServiceDiscover> createServiceDiscover(){
 #endif
 }
 
+#ifndef Q_OS_ANDROID
+static void dbus_logger(const char* logger_name,
+                        const struct SL_LogLocation* location,
+                        const enum SL_LogLevel level,
+                        const char* log_string){
+    log4cxx::LoggerPtr logger = log4cxx::LogManager::getLogger( logger_name );
+    log4cxx::spi::LocationInfo inf( location->file,
+                                    location->function,
+                                    location->line_number);
+
+    switch( level ){
+    case SL_TRACE:
+        logger->trace( log_string, inf );
+        break;
+    case SL_DEBUG:
+        logger->debug( log_string, inf );
+        break;
+    case SL_INFO:
+        logger->info( log_string, inf );
+        break;
+    case SL_WARN:
+        logger->warn( log_string, inf );
+        break;
+    case SL_ERROR:
+        logger->error( log_string, inf );
+        break;
+    case SL_FATAL:
+        logger->fatal( log_string, inf );
+        break;
+    }
+}
+#endif
+
 static void init_logging(){
 #ifndef Q_OS_ANDROID
     log4cxx::xml::DOMConfigurator::configure( "logconfig.xml" );
+
+    DBus::set_logging_function( dbus_logger );
 #endif
 }
 
