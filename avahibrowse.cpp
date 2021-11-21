@@ -41,18 +41,18 @@ void AvahiBrowse::initialize(){
             m_avahiServer->getorg_freedesktop_Avahi_ServerInterface()
                 ->ServiceBrowserNew( -1, 0, "_http._tcp", std::string(), 0 );
 
-//    m_browserProxyJMRIHttp = Avahi::ServiceBrowserProxy::create( m_conn, "org.freedesktop.Avahi", serviceBrowsePathJMRI );
+    m_browserProxyJMRIHttp = Avahi::ServiceBrowserProxy::create( m_conn, "org.freedesktop.Avahi", serviceBrowsePathJMRI );
 
-//    std::shared_ptr<Avahi::org_freedesktop_Avahi_ServiceBrowserProxy> proxyTmp2 =
-//            m_browserProxyJMRIHttp->getorg_freedesktop_Avahi_ServiceBrowserInterface();
+    std::shared_ptr<Avahi::org_freedesktop_Avahi_ServiceBrowserProxy> proxyTmp2 =
+            m_browserProxyJMRIHttp->getorg_freedesktop_Avahi_ServiceBrowserInterface();
 
-//    proxyTmp2->signal_Failure()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalFailure) );
-//    proxyTmp2->signal_AllForNow()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalAllForNow ) );
-//    proxyTmp2->signal_CacheExhausted()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalCacheExhausted ) );
-//    proxyTmp2->signal_ItemNew()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalHTTPNew ) );
-//    proxyTmp2->signal_ItemRemove()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalHTTPRemoved ) );
+    proxyTmp2->signal_Failure()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalFailure) );
+    proxyTmp2->signal_AllForNow()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalAllForNow ) );
+    proxyTmp2->signal_CacheExhausted()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalCacheExhausted ) );
+    proxyTmp2->signal_ItemNew()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalHTTPNew ) );
+    proxyTmp2->signal_ItemRemove()->connect( sigc::mem_fun( *this, &AvahiBrowse::signalHTTPRemoved ) );
 
-//    proxyTmp2->Start();
+    proxyTmp2->Start();
 
 }
 
