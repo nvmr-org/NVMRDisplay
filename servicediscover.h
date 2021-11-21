@@ -16,7 +16,7 @@ Q_SIGNALS:
     void rpiVideoSenderFound( RPIVideoSender* sender );
     void rpiVideoSenderWentAway( RPIVideoSender* sender );
     void jmriWebserverFound( QUrl url );
-    void rpiVideoSenderRtspFound( QUrl url );
+    void rpiVideoSenderRtspFound( QUrl url, QString name );
 
 protected:
     void foundRPIVideoSender( QString name, QString address, int port, std::vector<std::vector<uint8_t>> txtData );

@@ -24,7 +24,7 @@ void ServiceDiscover::foundRPIVideoSender(QString name, QString address, int por
     Q_EMIT rpiVideoSenderFound( sender );
 
     if( txtMap.contains( "rtsp") ){
-        Q_EMIT rpiVideoSenderRtspFound( txtMap.value( "rtsp" ) );
+        Q_EMIT rpiVideoSenderRtspFound( txtMap.value( "rtsp" ), txtMap.value( "videoname" ) );
     }
 }
 

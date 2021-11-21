@@ -47,7 +47,7 @@ Page {
     }
 
     function videoClicked(video){
-        console.log( "clicked video " + video.text )
+        console.log( "clicked video " + video.videoName )
 
         if( video.parent != mainVideo ){
             // Move the main video to the side
@@ -67,12 +67,12 @@ Page {
 
     Connections {
         target: serviceDiscover
-        function onRpiVideoSenderRtspFound( url ){
+        function onRpiVideoSenderRtspFound( url, name ){
             console.log( "new video! " + url )
 
             var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
             var video = component.createObject(otherVideos);
-//            video.text = bbb
+            video.videoName = name
             video.videoSource = url
 
             video.onVideoClicked.connect(videoClicked)
