@@ -186,6 +186,8 @@ set(PROJECT_SOURCES
         rpivideosender.h
         servicediscover.h
         servicediscover.cpp
+        settingshelper.h
+        settingshelper.cpp
         qml.qrc
         ${json_sources}
         ${avahi_sources}

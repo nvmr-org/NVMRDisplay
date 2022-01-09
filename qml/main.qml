@@ -9,6 +9,9 @@ ApplicationWindow {
     visibility: "FullScreen"
     id: mainWindow
 
+    // private property
+    property bool settingsOpen: false
+
     SwipeView {
         id: swipeView
         anchors.fill: parent
@@ -17,14 +20,20 @@ ApplicationWindow {
 
         WebForm {
             id: webPage
+            pageNumber: 0
         }
 
         WebForm {
             id: webPage2
+            pageNumber: 1
         }
 
         VideoForm {
             id: videoPage
+        }
+
+        SettingsPage {
+            id: settingsPage
         }
     }
 
@@ -40,6 +49,22 @@ ApplicationWindow {
         }
         TabButton {
             text: qsTr("Video")
+        }
+    }
+
+    Component {
+        id: tabButton
+        TabButton { }
+    }
+
+    Connections{
+        target: videoPage
+        function onOpenSettings() {
+            if(settingsOpen) return
+
+            var tab = tabButton.createObject(tabBar, {text: "Settings"})
+            tabBar.addItem(tab)
+            settingsOpen = true
         }
     }
 }

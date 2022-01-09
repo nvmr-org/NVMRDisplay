@@ -11,6 +11,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include "settingshelper.h"
 
 #ifndef Q_OS_ANDROID
 #include <qtwebengineglobal.h>
@@ -100,14 +101,15 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     QQmlContext *context = engine.rootContext();
     QSettings settings;
+    SettingsHelper sh;
 
     QString noJMRI = QStandardPaths::writableLocation(QStandardPaths::TempLocation);
     noJMRI.append(QDir::separator());
     noJMRI.append("no-jmri.html");
     QFile(":/no-jmri.html").copy(noJMRI);
-    context->setContextProperty(QStringLiteral("initialUrl"),
-                                settings.value( "url", "file://" + noJMRI ));
+    sh.setDefaultURL("file://" + noJMRI);
     context->setContextProperty(QStringLiteral("serviceDiscover"), sd.get() );
+    context->setContextProperty(QStringLiteral("settingsHelper"), &sh);
 
     const QUrl url(QStringLiteral("qrc:/qml/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,

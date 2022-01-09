@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtMultimedia 5.12
+import QtQml 2.12
 import org.nvmr.videodisplay 1.0
 
 //        Video {
@@ -15,6 +16,20 @@ import org.nvmr.videodisplay 1.0
 Page {
     width: 600
     height: 400
+
+    // private property
+    property int timesPressed: 0;
+    signal openSettings()
+
+    Timer {
+        id: pressedTimer
+        interval: 1000
+        running: false
+        repeat: false
+        onTriggered: {
+            timesPressed = 0
+        }
+    }
 
     Row {
         id: layout
@@ -41,6 +56,24 @@ Page {
                     font.underline: true
                     fontSizeMode: Text.HorizontalFit
                     font.pointSize: 52
+
+                    MouseArea{
+                        width: parent.width
+                        onPressed: {
+                            timesPressed++
+                            if( timesPressed > 3 ){
+                                console.log("oepn the settings")
+                                openSettings()
+                                timesPressed = 0
+                                pressedTimer.stop()
+                                return
+                            }
+                            pressedTimer.start()
+                        }
+
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton
+                    }
                 }
             }
         }

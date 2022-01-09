@@ -6,5 +6,6 @@
         <file>qml/qtquickcontrols2.conf</file>
         <file>qml/NVMRVideo.qml</file>
         <file>no-jmri.html</file>
+        <file>qml/SettingsPage.qml</file>
     </qresource>
 </RCC>
