@@ -19,12 +19,12 @@ ApplicationWindow {
         interactive: false
 
         WebForm {
-            id: webPage
+            id: webPage0
             pageNumber: 0
         }
 
         WebForm {
-            id: webPage2
+            id: webPage1
             pageNumber: 1
         }
 
@@ -42,9 +42,11 @@ ApplicationWindow {
         currentIndex: swipeView.currentIndex
 
         TabButton {
+            id: panel0Button
             text: qsTr("Panel 1")
         }
         TabButton {
+            id: panel1Button
             text: qsTr("Panel 2")
         }
         TabButton {
@@ -65,6 +67,20 @@ ApplicationWindow {
             var tab = tabButton.createObject(tabBar, {text: "Settings"})
             tabBar.addItem(tab)
             settingsOpen = true
+        }
+    }
+
+    Connections{
+        target: webPage0
+        function onUrl_titleChanged(text) {
+            panel0Button.text = text
+        }
+    }
+
+    Connections{
+        target: webPage1
+        function onUrl_titleChanged(text) {
+            panel1Button.text = text
         }
     }
 }

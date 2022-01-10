@@ -12,6 +12,8 @@ Page {
     // private property
     property bool webInitialized : false;
 
+    signal url_titleChanged(string title);
+
     WebView {
         id: webView
         anchors.fill: parent; // use a flickable to allow scrolling
@@ -22,6 +24,10 @@ Page {
 
         onUrlChanged: {
             settingsHelper.cacheDefaultPageForID( mainHolder.pageNumber, webView.url )
+        }
+
+        onTitleChanged: {
+            url_titleChanged(webView.title)
         }
     }
 
