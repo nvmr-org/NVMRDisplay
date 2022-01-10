@@ -4,21 +4,14 @@ import QtMultimedia 5.12
 import QtQml 2.12
 import org.nvmr.videodisplay 1.0
 
-//        Video {
-//            id: video1
-//            anchors.fill: parent;
-//            source: "rtsp://192.168.1.41:8554/test"
-//            autoPlay: true
-
-//            focus: true
-//        }
-
 Page {
     width: 600
     height: 400
 
-    // private property
+    // private properties
     property int timesPressed: 0;
+    property int quadVideoNumber: 0
+
     signal openSettings()
 
     Timer {
@@ -40,7 +33,50 @@ Page {
             color: "#000000"
             width: parent.width * .8
             height: parent.height
+            visible: false
         }
+
+        Rectangle {
+            id: quadVideo
+            color: "#0000ff"
+            width: parent.width * .8
+            height: parent.height
+            visible: true
+
+            Grid{
+                columns:  2
+                width: parent.width
+                height: parent.height
+                Rectangle {
+                    id: quad1
+                    color: "#ff0000"
+                    width: parent.width / 2
+                    height: parent.height / 2
+                }
+
+                Rectangle {
+                    id: quad2
+                    color: "#00ff00"
+                    width: parent.width / 2
+                    height: parent.height / 2
+                }
+
+                Rectangle {
+                    id: quad3
+                    color: "#ff00ff"
+                    width: parent.width / 2
+                    height: parent.height / 2
+                }
+
+                Rectangle {
+                    id: quad4
+                    color: "#ffff00"
+                    width: parent.width / 2
+                    height: parent.height / 2
+                }
+            }
+        }
+
         Rectangle {
             id: allVideos
             color: "#c2c2c2"
@@ -62,7 +98,6 @@ Page {
                         onPressed: {
                             timesPressed++
                             if( timesPressed > 3 ){
-                                console.log("oepn the settings")
                                 openSettings()
                                 timesPressed = 0
                                 pressedTimer.stop()
@@ -75,14 +110,115 @@ Page {
                         acceptedButtons: Qt.LeftButton
                     }
                 }
-            }
-        }
+
+                Row{
+                    id: videoStyle
+                    width: parent.width
+                    Text{
+                        text: "Multi"
+                        width: parent.width / 2
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.HorizontalFit
+                        font.pointSize: 20
+
+                        MouseArea{
+                            width: parent.width
+                            onPressed: {
+                                if( quadVideo.visible ) return
+                                console.log("multi video")
+                                quadVideo.visible = true
+                                mainVideo.visible = false
+                                var newSingleVideo
+
+                                for (var i = 0; i < mainVideo.children.length; i++)
+                                {
+                                    var videoToReparent = mainVideo.children[i]
+                                    videoToReparent.anchors.fill = undefined
+                                    videoToReparent.width = otherVideos.width
+                                    videoToReparent.parent = otherVideos
+                                    newSingleVideo = videoToReparent
+                                }
+
+                                videoClicked( newSingleVideo )
+                            }
+
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton
+                        }
+                    }
+                    Text{
+                        text: "Single"
+                        width: parent.width / 2
+                        horizontalAlignment: Text.AlignHCenter
+                        fontSizeMode: Text.HorizontalFit
+                        font.pointSize: 20
+
+                        MouseArea{
+                            width: parent.width
+                            onPressed: {
+                                if( mainVideo.visible ) return
+                                console.log("single video")
+                                quadVideo.visible = false
+                                mainVideo.visible = true
+                                quadVideoNumber = 0
+                                var newSingleVideo
+
+                                for (var i = 0; i < quad1.children.length; i++)
+                                {
+                                    var videoToReparent = quad1.children[i]
+                                    videoToReparent.anchors.fill = undefined
+                                    videoToReparent.width = otherVideos.width
+                                    videoToReparent.parent = otherVideos
+                                    newSingleVideo = videoToReparent
+                                }
+
+                                for (var i = 0; i < quad2.children.length; i++)
+                                {
+                                    var videoToReparent = quad2.children[i]
+                                    videoToReparent.anchors.fill = undefined
+                                    videoToReparent.width = otherVideos.width
+                                    videoToReparent.parent = otherVideos
+                                }
+
+                                for (var i = 0; i < quad3.children.length; i++)
+                                {
+                                    var videoToReparent = quad3.children[i]
+                                    videoToReparent.anchors.fill = undefined
+                                    videoToReparent.width = otherVideos.width
+                                    videoToReparent.parent = otherVideos
+                                }
+
+                                for (var i = 0; i < quad4.children.length; i++)
+                                {
+                                    var videoToReparent = quad4.children[i]
+                                    videoToReparent.anchors.fill = undefined
+                                    videoToReparent.width = otherVideos.width
+                                    videoToReparent.parent = otherVideos
+                                }
+
+                                videoClicked(newSingleVideo)
+                            }
+
+                            anchors.fill: parent
+                            acceptedButtons: Qt.LeftButton
+                        }
+                    }
+                }
+
+                Rectangle {
+                    width: parent.width
+                    height: 5
+                    color: "#ff0000"
+                }
+            }// end column
+        }// end rectangle
     }
 
     function videoClicked(video){
+        if(!video) return
         console.log( "clicked video " + video.videoName )
 
-        if( video.parent != mainVideo ){
+        if( mainVideo.visible && video.parent != mainVideo ){
             // Move the main video to the side
             for (var i = 0; i < mainVideo.children.length; i++)
             {
@@ -95,7 +231,43 @@ Page {
             video.parent = mainVideo
             video.width = video.parent.width
             video.anchors.fill = video.parent
+        }else if( quadVideo.visible &&
+                 video.parent != quad1 &&
+                 video.parent != quad2 &&
+                 video.parent != quad3 &&
+                 video.parent != quad4 ){
+            addToQuadVideo(video)
         }
+    }
+
+    function addToQuadVideo(video){
+        var correctQuad
+        if( quadVideoNumber == 0 ){
+            correctQuad = quad1
+        }else if( quadVideoNumber == 1 ){
+            correctQuad = quad2
+        }else if( quadVideoNumber == 2 ){
+            correctQuad = quad3
+        }else if( quadVideoNumber == 3 ){
+            correctQuad = quad4
+        }
+
+        quadVideoNumber++
+        if( quadVideoNumber == 4 ){
+            quadVideoNumber = 0
+        }
+
+        for (var i = 0; i < correctQuad.children.length; i++)
+        {
+            var videoToReparent = correctQuad.children[i]
+            videoToReparent.anchors.fill = undefined
+            videoToReparent.width = otherVideos.width
+            videoToReparent.parent = otherVideos
+        }
+
+        video.parent = correctQuad
+        video.width = video.parent.width
+        video.anchors.fill = video.parent
     }
 
     Connections {
