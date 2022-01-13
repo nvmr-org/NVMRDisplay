@@ -235,6 +235,8 @@ else()
     target_compile_definitions(NVMRDisplay PRIVATE
         HAVE_NETLINK
         HAVE_STRLCPY)
+
+    add_custom_target(android-srcs SOURCES android/AndroidManifest.xml)
 endif( NOT ANDROID )
 
 if( ${INTEGRATED_JSON} )
