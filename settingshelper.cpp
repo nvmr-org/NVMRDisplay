@@ -28,3 +28,10 @@ void SettingsHelper::clearDefaultPageForID(int id){
     QString key = QString( "url/number_%1" ).arg(id);
     m_settings.remove(key);
 }
+
+bool SettingsHelper::isUsingDefaultPageForID(int id){
+    QString key = QString( "url/number_%1" ).arg(id);
+    QString value = m_settings.value( key, m_defaultURL ).toString();
+
+    return value == m_defaultURL;
+}

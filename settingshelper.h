@@ -12,6 +12,7 @@ public:
 
     void setDefaultURL( QString defaultURL );
 
+    Q_INVOKABLE bool isUsingDefaultPageForID(int id);
     Q_INVOKABLE QString defaultPageForID(int id);
     Q_INVOKABLE void cacheDefaultPageForID(int id, QString url);
     Q_INVOKABLE void saveDefaultPageForID(int id);

@@ -35,6 +35,10 @@ Page {
         target: serviceDiscover
 
         function onJmriWebserverFound( url ){
+            if( !settingsHelper.isUsingDefaultPageForID(mainHolder.pageNumber) ){
+                webInitialized = true
+            }
+
             if( webInitialized ) return;
 
             console.log( "Setting webview to load " + url )
