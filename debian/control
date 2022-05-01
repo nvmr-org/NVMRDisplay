@@ -10,7 +10,7 @@ Build-Depends: debhelper (>= 11),
                qtbase5-dev,
                qtdeclarative5-dev,
                dbus-cxx-qt-dev,
-               cmake,
+               cmake (>= 3.14),
                libnvmr-json-dev,
                extra-cmake-modules
 Standards-Version: 4.1.3
