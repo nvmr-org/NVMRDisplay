@@ -114,93 +114,76 @@ Page {
                 Row{
                     id: videoStyle
                     width: parent.width
-                    Text{
+                    Button{
                         text: "Multi"
                         width: parent.width / 2
-                        horizontalAlignment: Text.AlignHCenter
-                        fontSizeMode: Text.HorizontalFit
                         font.pointSize: 20
 
-                        MouseArea{
-                            width: parent.width
-                            onPressed: {
-                                if( quadVideo.visible ) return
-                                console.log("multi video")
-                                quadVideo.visible = true
-                                mainVideo.visible = false
-                                var newSingleVideo
+                        onClicked: {
+                            if( quadVideo.visible ) return
+                            console.log("multi video")
+                            quadVideo.visible = true
+                            mainVideo.visible = false
+                            var newSingleVideo
 
-                                for (var i = 0; i < mainVideo.children.length; i++)
-                                {
-                                    var videoToReparent = mainVideo.children[i]
-                                    videoToReparent.anchors.fill = undefined
-                                    videoToReparent.width = otherVideos.width
-                                    videoToReparent.parent = otherVideos
-                                    newSingleVideo = videoToReparent
-                                }
-
-                                videoClicked( newSingleVideo )
+                            for (var i = 0; i < mainVideo.children.length; i++)
+                            {
+                                var videoToReparent = mainVideo.children[i]
+                                videoToReparent.anchors.fill = undefined
+                                videoToReparent.width = otherVideos.width
+                                videoToReparent.parent = otherVideos
+                                newSingleVideo = videoToReparent
                             }
 
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton
+                            videoClicked( newSingleVideo )
                         }
                     }
-                    Text{
+                    Button{
                         text: "Single"
                         width: parent.width / 2
-                        horizontalAlignment: Text.AlignHCenter
-                        fontSizeMode: Text.HorizontalFit
                         font.pointSize: 20
+                        onClicked: {
+                            if( mainVideo.visible ) return
+                            console.log("single video")
+                            quadVideo.visible = false
+                            mainVideo.visible = true
+                            quadVideoNumber = 0
+                            var newSingleVideo
 
-                        MouseArea{
-                            width: parent.width
-                            onPressed: {
-                                if( mainVideo.visible ) return
-                                console.log("single video")
-                                quadVideo.visible = false
-                                mainVideo.visible = true
-                                quadVideoNumber = 0
-                                var newSingleVideo
-
-                                for (var i = 0; i < quad1.children.length; i++)
-                                {
-                                    var videoToReparent = quad1.children[i]
-                                    videoToReparent.anchors.fill = undefined
-                                    videoToReparent.width = otherVideos.width
-                                    videoToReparent.parent = otherVideos
-                                    newSingleVideo = videoToReparent
-                                }
-
-                                for (var i = 0; i < quad2.children.length; i++)
-                                {
-                                    var videoToReparent = quad2.children[i]
-                                    videoToReparent.anchors.fill = undefined
-                                    videoToReparent.width = otherVideos.width
-                                    videoToReparent.parent = otherVideos
-                                }
-
-                                for (var i = 0; i < quad3.children.length; i++)
-                                {
-                                    var videoToReparent = quad3.children[i]
-                                    videoToReparent.anchors.fill = undefined
-                                    videoToReparent.width = otherVideos.width
-                                    videoToReparent.parent = otherVideos
-                                }
-
-                                for (var i = 0; i < quad4.children.length; i++)
-                                {
-                                    var videoToReparent = quad4.children[i]
-                                    videoToReparent.anchors.fill = undefined
-                                    videoToReparent.width = otherVideos.width
-                                    videoToReparent.parent = otherVideos
-                                }
-
-                                videoClicked(newSingleVideo)
+                            for (var i = 0; i < quad1.children.length; i++)
+                            {
+                                var videoToReparent = quad1.children[i]
+                                videoToReparent.anchors.fill = undefined
+                                videoToReparent.width = otherVideos.width
+                                videoToReparent.parent = otherVideos
+                                newSingleVideo = videoToReparent
                             }
 
-                            anchors.fill: parent
-                            acceptedButtons: Qt.LeftButton
+                            for (var i = 0; i < quad2.children.length; i++)
+                            {
+                                var videoToReparent = quad2.children[i]
+                                videoToReparent.anchors.fill = undefined
+                                videoToReparent.width = otherVideos.width
+                                videoToReparent.parent = otherVideos
+                            }
+
+                            for (var i = 0; i < quad3.children.length; i++)
+                            {
+                                var videoToReparent = quad3.children[i]
+                                videoToReparent.anchors.fill = undefined
+                                videoToReparent.width = otherVideos.width
+                                videoToReparent.parent = otherVideos
+                            }
+
+                            for (var i = 0; i < quad4.children.length; i++)
+                            {
+                                var videoToReparent = quad4.children[i]
+                                videoToReparent.anchors.fill = undefined
+                                videoToReparent.width = otherVideos.width
+                                videoToReparent.parent = otherVideos
+                            }
+
+                            videoClicked(newSingleVideo)
                         }
                     }
                 }
@@ -208,7 +191,7 @@ Page {
                 Rectangle {
                     width: parent.width
                     height: 5
-                    color: "#ff0000"
+                    color: "#000000"
                 }
             }// end column
         }// end rectangle
