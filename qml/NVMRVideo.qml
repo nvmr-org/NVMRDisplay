@@ -12,6 +12,13 @@ Item {
     GroupBox {
         title: mainItem.videoName
         anchors.fill: parent;
+        label: Label {
+                x: parent.leftPadding
+                width: parent.availableWidth
+                text: parent.title
+                color: "#ffffff"
+                elide: Text.ElideRight
+        }
 
         Video {
             id: video1

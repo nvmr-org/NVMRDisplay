@@ -49,30 +49,38 @@ Page {
                 height: parent.height
                 Rectangle {
                     id: quad1
-                    color: "#ff0000"
+                    color: "#000000"
                     width: parent.width / 2
                     height: parent.height / 2
+                    border.color: "#ffffff"
+                    border.width: 2
                 }
 
                 Rectangle {
                     id: quad2
-                    color: "#00ff00"
+                    color: "#000000"
                     width: parent.width / 2
                     height: parent.height / 2
+                    border.color: "#ffffff"
+                    border.width: 2
                 }
 
                 Rectangle {
                     id: quad3
-                    color: "#ff00ff"
+                    color: "#000000"
                     width: parent.width / 2
                     height: parent.height / 2
+                    border.color: "#ffffff"
+                    border.width: 2
                 }
 
                 Rectangle {
                     id: quad4
-                    color: "#ffff00"
+                    color: "#000000"
                     width: parent.width / 2
                     height: parent.height / 2
+                    border.color: "#ffffff"
+                    border.width: 2
                 }
             }
         }
@@ -260,7 +268,7 @@ Page {
 
             var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
             var video = component.createObject(otherVideos);
-            video.videoName = name
+            video.videoName = name + x
             video.videoSource = url
 
             video.onVideoClicked.connect(videoClicked)
