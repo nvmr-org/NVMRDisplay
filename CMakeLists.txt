@@ -4,6 +4,7 @@ project(NVMRDisplay LANGUAGES CXX C)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+if( NOT ANDROID )
 include(FeatureSummary)
 find_package(ECM 5.54.0  NO_MODULE)
 set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
@@ -13,6 +14,8 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 # need KDEInstallDirs for qmake/moc to work correctly
 include(KDEInstallDirs)
+endif(NOT ANDROID)
+
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
