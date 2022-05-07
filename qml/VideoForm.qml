@@ -268,7 +268,7 @@ Page {
 
             var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
             var video = component.createObject(otherVideos);
-            video.videoName = name + x
+            video.videoName = name
             video.videoSource = url
 
             video.onVideoClicked.connect(videoClicked)
