@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtMultimedia 5.12
 import QtQuick.Controls 2.15
+import QtQml 2.15
 
 Item {
     id: mainItem
@@ -25,7 +26,7 @@ Item {
             anchors.fill: parent;
             source: mainItem.videoSource
             autoPlay: true
-            playbackRate: 1.5
+            playbackRate: qt.platform == "android" ? 1.5 : 1.0
             focus: true
         }
     }
