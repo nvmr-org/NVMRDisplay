@@ -243,6 +243,8 @@ if( NOT ANDROID )
         ${nvmr-json_LIBRARIES}
         ${dbus-cxx_LIBRARIES}
         ${log4cxx_LIBRARIES} )
+    install( TARGETS NVMRDisplay
+            RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 else()
     target_compile_definitions(NVMRDisplay PRIVATE
         HAVE_NETLINK
