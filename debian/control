@@ -2,25 +2,32 @@ Source: nvmr-display
 Section: unknown
 Priority: optional
 Maintainer: Robert Middleton <robert.middleton@rm5248.com>
-Build-Depends: debhelper (>= 11),
+Build-Depends: cmake (>= 3.14),
+               dbus-cxx-qt-dev,
+               debhelper (>= 11),
+               extra-cmake-modules,
                libgstreamer-plugins-base1.0-dev,
                libgstreamer1.0-dev,
                liblog4cxx-dev,
+               libnvmr-json-dev,
                libqt5websockets5-dev,
                qtbase5-dev,
                qtdeclarative5-dev,
                qtmultimedia5-dev,
-               qtwebengine5-dev,
-               dbus-cxx-qt-dev,
-               cmake (>= 3.14),
-               libnvmr-json-dev,
-               extra-cmake-modules
+               qtwebengine5-dev
 Standards-Version: 4.1.3
 Homepage: <insert the upstream URL, if relevant>
 
 Package: nvmr-display
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, qml-module-qtgstreamer, qml-module-qtquick2, gstreamer1.0-gl, gstreamer1.0-qt5, qml-module-qtquick-controls2, qml-module-qtquick-window2
+Depends: gstreamer1.0-gl,
+         gstreamer1.0-qt5,
+         qml-module-qtgstreamer,
+         qml-module-qtquick-controls2,
+         qml-module-qtquick-window2,
+         qml-module-qtquick2,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Description: Display for NVMR
  Display program for NVMR to display cameras and webpages
  from JMRI
