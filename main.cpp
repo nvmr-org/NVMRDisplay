@@ -83,9 +83,6 @@ static void init_logging(){
 
 int main(int argc, char *argv[])
 {
-#ifndef Q_OS_ANDROID
-    QtWebEngine::initialize();
-#endif /* Q_OS_ANDROID */
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
@@ -94,6 +91,10 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
     app.setApplicationName( "VideoDisplay" );
     app.setOrganizationName( "NVMR" );
+
+#ifndef Q_OS_ANDROID
+    QtWebEngine::initialize();
+#endif /* Q_OS_ANDROID */
 
     qmlRegisterType<ServiceDiscover>("org.nvmr.videodisplay", 1, 0, "ServiceDiscover");
 
