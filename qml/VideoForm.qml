@@ -1,7 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 import QtMultimedia 5.9
-import QtQml 2.9
+import QtQml 2.0
 import org.nvmr.videodisplay 1.0
 
 Page {
