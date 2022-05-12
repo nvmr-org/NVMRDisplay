@@ -28,6 +28,7 @@ Depends: gstreamer1.0-gl,
          qml-module-qtquick-window2,
          qml-module-qtquick2,
          qml-module-qtwebview,
+         qml-module-qtmultimedia,
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Display for NVMR
