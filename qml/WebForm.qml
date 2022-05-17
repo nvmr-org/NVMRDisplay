@@ -31,9 +31,7 @@ Page {
         }
 
 	Component.onCompleted: {
-        //url = settingsHelper.defaultPageForID( mainHolder.pageNumber )
-	//url= "file:///tmp/no-jmri.html"
-	url = "google.com"
+        url = settingsHelper.defaultPageForID( mainHolder.pageNumber )
 	}
     }
 
