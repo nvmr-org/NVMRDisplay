@@ -1,6 +1,6 @@
 import QtQuick 2.0
-import QtQuick.Layouts 1.2
-import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.12
 import org.nvmr.videodisplay 1.0
 
 Item {

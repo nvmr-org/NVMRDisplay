@@ -1,5 +1,5 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick 2.12
+import QtQuick.Controls 2.5
 import QtWebView 1.1
 
 Page {
@@ -20,7 +20,7 @@ Page {
 //        contentWidth: width; // flickable content width is its own width, scroll only vertically
 //        contentHeight: layout.height; // content height is the height of the layout of items
 
-        url: settingsHelper.defaultPageForID( mainHolder.pageNumber )
+	//url: "file:///tmp/no-jmri.html"
 
         onUrlChanged: {
             settingsHelper.cacheDefaultPageForID( mainHolder.pageNumber, webView.url )
@@ -29,6 +29,12 @@ Page {
         onTitleChanged: {
             url_titleChanged(webView.title)
         }
+
+	Component.onCompleted: {
+        //url = settingsHelper.defaultPageForID( mainHolder.pageNumber )
+	//url= "file:///tmp/no-jmri.html"
+	url = "google.com"
+	}
     }
 
     Connections {

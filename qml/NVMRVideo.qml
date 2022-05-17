@@ -1,7 +1,7 @@
 import QtQuick 2.0
-import QtMultimedia 5.9
-import QtQuick.Controls 2.2
-import QtQml 2.9
+import QtMultimedia 5.12
+import QtQuick.Controls 2.15
+import QtQml 2.15
 
 Item {
     id: mainItem
