@@ -26,7 +26,7 @@ Item {
             anchors.fill: parent;
             source: mainItem.videoSource
             autoPlay: true
-            playbackRate: qt.platform == "android" ? 1.5 : 1.0
+            playbackRate: 1.0
             focus: true
         }
     }
