@@ -14,6 +14,7 @@ Build-Depends: cmake (>= 3.14),
                qtbase5-dev,
                qtdeclarative5-dev,
                qtmultimedia5-dev,
+               libqt5multimedia5-plugins,
                qtwebengine5-dev
 Standards-Version: 4.1.3
 Homepage: <insert the upstream URL, if relevant>
