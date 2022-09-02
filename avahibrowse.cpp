@@ -108,6 +108,8 @@ void AvahiBrowse::signalVideoSenderRemoved(int32_t interface,
     RPIVideoSender* toremove = nullptr;
     QString nameAsQStr = QString::fromStdString( name );
 
+    lostRPIVideoSender( nameAsQStr );
+
 //    QVector<RPIVideoSender*>::iterator it;
 //    for( it = m_resolvedVideoSenders.begin();
 //         it != m_resolvedVideoSenders.end();

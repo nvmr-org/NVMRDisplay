@@ -263,15 +263,74 @@ Page {
 
     Connections {
         target: serviceDiscover
-        function onRpiVideoSenderRtspFound( url, name ){
-            console.log( "new video! " + url )
+        function onRpiVideoSenderRtspFound( url, uniqueName, videoName ){
+            console.log( "new video! " + url + " name: " + videoName )
 
             var component = Qt.createComponent("qrc:/qml/NVMRVideo.qml");
             var video = component.createObject(otherVideos);
-            video.videoName = name
+            video.videoName = videoName
             video.videoSource = url
+            video.uniqueName = uniqueName
 
             video.onVideoClicked.connect(videoClicked)
+        }
+
+        function onRpiVideoSenderRtspWentAway( uniqueName ){
+            console.log( "Video " + uniqueName + " went away" )
+
+            if( mainVideo.visible ){
+                // Find the correct video and remove it
+                for (var i = 0; i < mainVideo.children.length; i++)
+                {
+                    var videoToRemove = mainVideo.children[i]
+                    if( videoToRemove.uniqueName == uniqueName ){
+                        console.log( "Removing video main" )
+                        videoToRemove.destroy()
+                    }
+                }
+            }else if( quadVideo.visible ){
+                for (var i = 0; i < quad1.children.length; i++)
+                {
+                    var videoToRemove = quad1.children[i]
+                    if( videoToRemove.uniqueName == uniqueName ){
+                        console.log( "Removing video quad1" )
+                        videoToRemove.destroy()
+                    }
+                }
+                for (var i = 0; i < quad2.children.length; i++)
+                {
+                    var videoToRemove = quad2.children[i]
+                    if( videoToRemove.uniqueName == uniqueName ){
+                        console.log( "Removing video quad2" )
+                        videoToRemove.destroy()
+                    }
+                }
+                for (var i = 0; i < quad3.children.length; i++)
+                {
+                    var videoToRemove = quad3.children[i]
+                    if( videoToRemove.uniqueName == uniqueName ){
+                        console.log( "Removing video quad3" )
+                        videoToRemove.destroy()
+                    }
+                }
+                for (var i = 0; i < quad4.children.length; i++)
+                {
+                    var videoToRemove = quad4.children[i]
+                    if( videoToRemove.uniqueName == uniqueName ){
+                        console.log( "Removing video quad4" )
+                        videoToRemove.destroy()
+                    }
+                }
+            }
+
+            for (var i = 0; i < otherVideos.children.length; i++)
+            {
+                var videoToRemove = otherVideos.children[i]
+                if( videoToRemove.uniqueName == uniqueName ){
+                    console.log( "Removing video other" )
+                    videoToRemove.destroy()
+                }
+            }
         }
     }
 

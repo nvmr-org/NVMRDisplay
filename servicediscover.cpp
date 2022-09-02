@@ -21,10 +21,9 @@ void ServiceDiscover::foundRPIVideoSender(QString name, QString address, int por
                                                  port,
                                                  this );
     m_resolvedVideoSenders.push_back( sender );
-    Q_EMIT rpiVideoSenderFound( sender );
 
     if( txtMap.contains( "rtsp") ){
-        Q_EMIT rpiVideoSenderRtspFound( txtMap.value( "rtsp" ), txtMap.value( "videoname" ) );
+        Q_EMIT rpiVideoSenderRtspFound( txtMap.value( "rtsp" ), name, txtMap.value( "videoname" ) );
     }
 }
 
@@ -43,5 +42,17 @@ void ServiceDiscover::foundHTTPServer( QString name, QString address, int port, 
                 address
                 + ":" + QString::number( port );
         Q_EMIT jmriWebserverFound( url );
+    }
+}
+
+void ServiceDiscover::lostRPIVideoSender(QString name){
+    QMutableVectorIterator<RPIVideoSender*> it( m_resolvedVideoSenders );
+    while( it.hasNext() ){
+        RPIVideoSender* vid = it.next();
+        if( vid->name() == name ){
+            Q_EMIT rpiVideoSenderRtspWentAway( vid->name() );
+            it.remove();
+            vid->deleteLater();
+        }
     }
 }

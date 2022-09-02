@@ -9,6 +9,7 @@ Item {
     height: width
     property string videoName
     property url videoSource
+    property string uniqueName
 
     GroupBox {
         title: mainItem.videoName
