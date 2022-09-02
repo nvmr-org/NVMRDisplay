@@ -255,6 +255,7 @@ void EmbeddedAvahiBrowse::videosender_browse_cb(
         case AVAHI_BROWSER_REMOVE:
             fprintf(stderr, "(Browser) REMOVE: service '%s' of type '%s' in domain '%s'\n", name, type, domain);
             fflush(stderr);
+            rpiVideoSenderRtspWentAway( name );
             break;
 
         case AVAHI_BROWSER_ALL_FOR_NOW:
